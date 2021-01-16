@@ -45,7 +45,7 @@ namespace PASS4
             Helper.Content = Content;
 
             LoadLevelFromFile("Level");
-
+            gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
         }
 
         protected override void Update(GameTime gameTime)
@@ -63,14 +63,19 @@ namespace PASS4
         {
             foreach (GameObject gameObject in gameObjects)
             {
-                if (gameObject.Velocity == Vector2.Zero)
-                {
-                    continue;
-                }
-
-                Vector2 possibleVelocity = RestrictVelocity(gameObject, gameObject.Velocity);
-                gameObject.Move(possibleVelocity);
+                MoveGameObject(gameObject);
             }
+        }
+
+        private void MoveGameObject(GameObject gameObject)
+        {
+            if (gameObject.Velocity == Vector2.Zero)
+            {
+                return;
+            }
+
+            Vector2 possibleVelocity = RestrictVelocity(gameObject, gameObject.Velocity);
+            gameObject.Move(possibleVelocity);
         }
 
         private Vector2 RestrictVelocity(GameObject gameObject, Vector2 wantedVelocity, bool anotherPass = true)
@@ -111,13 +116,12 @@ namespace PASS4
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides);
-                collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides);
+                gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
 
                 if (collidedGameObject == null || collidedGameObject.Box != collidedObjectBox)
                 {
                     return RestrictVelocity(gameObject, wantedVelocity);
                 }
-
 
                 if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
                 {
@@ -147,9 +151,42 @@ namespace PASS4
                     {
                         continue;
                     }
+
                     if (nextFrameRec.Intersects(otherGameObject.Box))
                     {
+                        Rectangle collidedObjectBox = otherGameObject.Box;
 
+                        otherGameObject.InformCollisionTo(gameObject, firstCollision.Sides);
+                        gameObject.InformCollisionTo(otherGameObject, firstCollision.Sides);
+
+                        if (otherGameObject == null || otherGameObject.Box != collidedObjectBox)
+                        {
+                            return RestrictVelocity(gameObject, wantedVelocity);
+                        }
+
+                        if (gameObject.Box.Bottom <= otherGameObject.Box.Top)
+                        {
+                            gameObject.Velocity.Y = 0;
+                            wantedVelocity.Y = otherGameObject.Box.Top - gameObject.Box.Bottom;
+                        }
+
+                        if (gameObject.Box.Top >= otherGameObject.Box.Bottom)
+                        {
+                            gameObject.Velocity.Y = 0;
+                            wantedVelocity.Y = otherGameObject.Box.Bottom - gameObject.Box.Top;
+                        }
+
+                        if (gameObject.Box.Right <= otherGameObject.Box.Left)
+                        {
+                            gameObject.Velocity.X = 0;
+                            wantedVelocity.X = otherGameObject.Box.Left - gameObject.Box.Right;
+                        }
+
+                        if (gameObject.Box.Left >= otherGameObject.Box.Right)
+                        {
+                            gameObject.Velocity.X = 0;
+                            wantedVelocity.X = otherGameObject.Box.Right - gameObject.Box.Left;
+                        }
                     }
                 }
             }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace PASS4
 {
@@ -16,7 +17,7 @@ namespace PASS4
 
         private bool onGround = true;
 
-        private float gravity = 3;
+        private float gravity = 1;
         private float xSpeed = 2;
         private float initalJumpSpeed = -10;
         public Player(int x, int y) : base(image, x, y, width, height)
@@ -27,12 +28,13 @@ namespace PASS4
         public override void Update()
         {
             KeyboardState kb = Keyboard.GetState();
-            Velocity.X = Convert.ToInt16(kb.IsKeyDown(Keys.D)) - Convert.ToInt32(kb.IsKeyDown(Keys.A));
+            Velocity.X = xSpeed * (Convert.ToInt16(kb.IsKeyDown(Keys.D)) - Convert.ToInt32(kb.IsKeyDown(Keys.A)));
 
-            Velocity.Y = gravity;
+            Velocity.Y += gravity;
 
             if(onGround && kb.IsKeyDown(Keys.Space))
             {
+                onGround = false;
                 Velocity.Y = initalJumpSpeed;
             }
 
@@ -41,6 +43,13 @@ namespace PASS4
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
         {
             otherGameObject.CollideWith(this, sides);
+        }
+
+        public override void CollideWith(Wall wall, IEnumerable<Side> sides) => onGround = sides.Contains(Side.Top);
+
+        public override void CollideWith(Crate wall, IEnumerable<Side> sides)
+        {
+            onGround = sides.Contains(Side.Top);
         }
     }
 }

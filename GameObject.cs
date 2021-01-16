@@ -56,7 +56,15 @@ namespace PASS4
             spriteBatch.Draw(image, box, Color.White);
         }
 
-        protected void InvokeMoveReady() => MoveReady?.Invoke(this);
+        protected void InvokeMoveReady(Vector2 delta)
+        {
+            Vector2 oldVelocity = Velocity;
+            Velocity = delta;
+            
+            MoveReady?.Invoke(this);
+
+            Velocity = oldVelocity;
+        }
 
         protected void InvokeDeleteReady() => DeleteReady?.Invoke(this);
 
