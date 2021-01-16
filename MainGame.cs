@@ -79,7 +79,6 @@ namespace PASS4
             RayCollisionInfo curCollision;
 
             GameObject collidedGameObject = null;
-            bool collisionOnVertex = false;
 
             foreach (GameObject otherGameObject in gameObjects)
             {
@@ -92,64 +91,20 @@ namespace PASS4
                 {
                     curCollision = Helper.RayBoxFirstCollision(new Line(rayStartPoint, rayStartPoint + wantedVelocity), otherGameObject.Box);
 
-                    if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left)
-                    {
-                        continue;
-                    }
+                    if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left ||
+                        curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right ||
+                        curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top ||
+                        curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
+                    { continue; }
 
-                    if (curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right)
-                    {
-                        continue;
-                    }
-
-                    if (curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top)
-                    {
-                        continue;
-                    }
-
-                    if (curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
-                    {
-                        continue;
-                    }
-
-                    if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length()))
+                    if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length() 
+                        || (curCollision.Distance.Length() == firstCollision.Distance.Length() && curCollision.Sides.Count < firstCollision.Sides.Count)))
                     {
                         collidedGameObject = otherGameObject;
                         firstCollision = curCollision;
-
-                        if (rayStartPoint == new Vector2(gameObject.Box.Top, gameObject.Box.Left) ||
-                            rayStartPoint == new Vector2(gameObject.Box.Top, gameObject.Box.Right) ||
-                            rayStartPoint == new Vector2(gameObject.Box.Bottom, gameObject.Box.Left) ||
-                            rayStartPoint == new Vector2(gameObject.Box.Bottom, gameObject.Box.Right))
-                        {
-                            collisionOnVertex = true;
-                        }
                     }
                 }
             }
-
-           /* if(firstCollision.Sides.Count == 2 && !collisionOnVertex)
-            {
-                if (firstCollision.Sides.Contains(Side.Right) && gameObject.Box.Right > collidedGameObject.Box.Left)
-                {
-                    firstCollision.Sides.Remove(Side.Right);
-                }
-
-                if (firstCollision.Sides.Contains(Side.Left) && gameObject.Box.Left < collidedGameObject.Box.Right)
-                {
-                    firstCollision.Sides.Remove(Side.Left);
-                }
-
-                if (firstCollision.Sides.Contains(Side.Bottom) && gameObject.Box.Top > collidedGameObject.Box.Bottom)
-                {
-                    firstCollision.Sides.Remove(Side.Bottom);
-                }
-
-                if (firstCollision.Sides.Contains(Side.Top) && gameObject.Box.Bottom < collidedGameObject.Box.Top)
-                {
-                    firstCollision.Sides.Remove(Side.Top);
-                }
-            }*/
 
             if (firstCollision.Sides.Count != 0)
             {
@@ -169,7 +124,7 @@ namespace PASS4
                     gameObject.Velocity.Y = 0;
                     wantedVelocity.Y = firstCollision.Distance.Y;
                 }
-                
+
                 if (firstCollision.Sides.Contains(Side.Left) || firstCollision.Sides.Contains(Side.Right))
                 {
                     gameObject.Velocity.X = 0;
@@ -182,22 +137,34 @@ namespace PASS4
                 }
             }
 
+            if (firstCollision.Sides.Count == 0)
+            {
+                Rectangle nextFrameRec = gameObject.Box;
+                nextFrameRec.Location += wantedVelocity.ToPoint();
+                foreach (GameObject otherGameObject in gameObjects)
+                {
+                    if(gameObject == otherGameObject)
+                    {
+                        continue;
+                    }
+                    if (nextFrameRec.Intersects(otherGameObject.Box))
+                    {
+
+                    }
+                }
+            }
+
             return wantedVelocity;
         }
 
         public static IEnumerable<Vector2> GetRayStatingPointsOnBox(Rectangle box)
         {
 
-            for (int c = 0; c < 3; ++c)
+            for (int c = 0; c < 2; ++c)
             {
-                for (int r = 0; r < 3; ++r)
+                for (int r = 0; r < 2; ++r)
                 {
-                    if (c == 1 && r == 1)
-                    {
-                        continue;
-                    }
-
-                    yield return new Vector2(box.Location.X + c * box.Width / 2, box.Location.Y + r * box.Height / 2);
+                    yield return new Vector2(box.Location.X + c * box.Width, box.Location.Y + r * box.Height);
                 }
             }
         }
