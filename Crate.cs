@@ -12,6 +12,9 @@ namespace PASS4
 
         private static float gravity = 1;
 
+        private bool heldDown;
+        private Crate heldDownCrate;
+
         public Crate(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
         {
 
@@ -29,6 +32,11 @@ namespace PASS4
 
         public override void CollideWith(Player player, IEnumerable<Side> sides)
         {
+            if (heldDown)
+            {
+                return;
+            }
+
             if(sides.Contains(Side.Left))
             {
                 InvokeMoveReady(new Vector2(1, 0));
@@ -37,7 +45,25 @@ namespace PASS4
             {
                 InvokeMoveReady(new Vector2(-1, 0));
             }
-
         }
+
+        public override void CollideWith(Crate crate, IEnumerable<Side> sides)
+        {
+            if (sides.Contains(Side.Top))
+            {
+                crate.HoldDown();
+                heldDownCrate = crate;
+            }
+
+            if (sides.Contains(Side.Bottom))
+            {
+                crate.MoveOff();
+                heldDownCrate = null;
+            }
+        }
+
+        public void HoldDown() => heldDown = true;
+
+        public void MoveOff() => heldDown = false;
     }
 }

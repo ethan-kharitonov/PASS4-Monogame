@@ -116,7 +116,7 @@ namespace PASS4
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides);
-                gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
+                //gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
 
                 if (collidedGameObject == null || collidedGameObject.Box != collidedObjectBox)
                 {
@@ -157,7 +157,7 @@ namespace PASS4
                         Rectangle collidedObjectBox = otherGameObject.Box;
 
                         otherGameObject.InformCollisionTo(gameObject, firstCollision.Sides);
-                        gameObject.InformCollisionTo(otherGameObject, firstCollision.Sides);
+                       // gameObject.InformCollisionTo(otherGameObject, firstCollision.Sides);
 
                         if (otherGameObject == null || otherGameObject.Box != collidedObjectBox)
                         {
