@@ -12,17 +12,18 @@ namespace PASS4
 
         private static float gravity = 1;
 
-        private bool heldDown;
-        private Crate heldDownCrate;
+        private List<Crate> cratesAbove = new List<Crate>();
+        private List<Crate> cratesBelow = new List<Crate>();
+
 
         public Crate(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
         {
-
         }
 
         public override void Update()
         {
             Velocity.Y += gravity;
+            cratesBelow.ForEach(c => c.StepOff(this));
         }
 
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
@@ -30,9 +31,9 @@ namespace PASS4
             otherGameObject.CollideWith(this, sides);
         }
 
-        public override void CollideWith(Player player, IEnumerable<Side> sides)
+        public void Push(IEnumerable<Side> sides)
         {
-            if (heldDown)
+            if (cratesAbove.Count != 0)
             {
                 return;
             }
@@ -45,25 +46,31 @@ namespace PASS4
             {
                 InvokeMoveReady(new Vector2(-1, 0));
             }
+
+            Rectangle slightlyLowerBox = Box;
+            slightlyLowerBox.Location += new Point(0, 1);
+
+            foreach (Crate crateBelow in cratesBelow)
+            {
+                if (!slightlyLowerBox.Intersects(crateBelow.Box) || Box.Bottom > crateBelow.Box.Top) 
+                {
+                    crateBelow.StepOff(this);
+                }
+            }
+
         }
 
         public override void CollideWith(Crate crate, IEnumerable<Side> sides)
         {
             if (sides.Contains(Side.Top))
             {
-                crate.HoldDown();
-                heldDownCrate = crate;
-            }
-
-            if (sides.Contains(Side.Bottom))
-            {
-                crate.MoveOff();
-                heldDownCrate = null;
+                crate.StepOnto(this);
+                cratesBelow.Add(crate);
             }
         }
 
-        public void HoldDown() => heldDown = true;
+        public void StepOnto(Crate crate) => cratesAbove.Add(crate);
 
-        public void MoveOff() => heldDown = false;
+        public void StepOff(Crate crate) => cratesAbove.Remove(crate);
     }
 }

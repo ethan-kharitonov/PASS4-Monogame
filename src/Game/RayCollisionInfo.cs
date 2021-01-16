@@ -9,10 +9,10 @@ namespace PASS4
 {
     public class RayCollisionInfo : IEquatable<RayCollisionInfo>
     {
-        public readonly Vector2 Intersection;
-        public readonly Vector2 Distance;
-        public readonly bool IsIntersecting;
-        public readonly List<Side> Sides;
+        public Vector2 Intersection;
+        public Vector2 Distance;
+        public bool IsIntersecting;
+        public List<Side> Sides;
 
         public RayCollisionInfo(Vector2 intersection, Vector2 distance, List<Side> sides, bool isIntersecting)
         {

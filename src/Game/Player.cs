@@ -47,9 +47,14 @@ namespace PASS4
 
         public override void CollideWith(Wall wall, IEnumerable<Side> sides) => onGround = sides.Contains(Side.Top);
 
-        public override void CollideWith(Crate wall, IEnumerable<Side> sides)
+        public override void CollideWith(Crate crate, IEnumerable<Side> sides)
         {
-            onGround = sides.Contains(Side.Top);
+            if (sides.Contains(Side.Top)) 
+            {
+                onGround = true;
+            }
+
+            crate.Push(sides);
         }
     }
 }
