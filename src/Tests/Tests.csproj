@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PASS4-V2\PASS4.csproj" />
+    <ProjectReference Include="..\Game\Game.csproj" />
   </ItemGroup>
 
 </Project>
