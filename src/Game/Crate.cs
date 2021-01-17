@@ -12,8 +12,8 @@ namespace Game
 
         private static float gravity = 1;
 
-        private List<Crate> cratesAbove = new List<Crate>();
-        private List<Crate> cratesBelow = new List<Crate>();
+        private HashSet<Crate> cratesAbove = new HashSet<Crate>();
+        private HashSet<Crate> cratesBelow = new HashSet<Crate>();
 
 
         public Crate(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
@@ -23,7 +23,6 @@ namespace Game
         public override void Update()
         {
             Velocity.Y += gravity;
-            cratesBelow.ForEach(c => c.StepOff(this));
         }
 
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
@@ -38,11 +37,11 @@ namespace Game
                 return;
             }
 
-            if(sides.Contains(Side.Left))
+            if(sides.Contains(Side.Right))
             {
                 InvokeMoveReady(new Vector2(1, 0));
             }
-            else if (sides.Contains(Side.Right))
+            else if (sides.Contains(Side.Left))
             {
                 InvokeMoveReady(new Vector2(-1, 0));
             }
@@ -62,7 +61,7 @@ namespace Game
 
         public override void CollideWith(Crate crate, IEnumerable<Side> sides)
         {
-            if (sides.Contains(Side.Top))
+            if (sides.Contains(Side.Bottom))
             {
                 crate.StepOnto(this);
                 cratesBelow.Add(crate);

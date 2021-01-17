@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using NUnit.Framework;
-using PASS4;
+using Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -221,5 +221,18 @@ namespace Tests
 
         [TestCaseSource(nameof(GetRayStatingPointsOnBoxInput))]
         public List<Vector2> GetRayStatingPointsOnBoxTests(Rectangle box) => MainGame.GetRayStatingPointsOnBox(box).ToList();
+
+
+        private static readonly TestCaseData[] FlipSideInput = new[]
+        {
+            new TestCaseData(new List<Side> {Side.Top, Side.Bottom, Side.Left, Side.Right})
+            {
+                ExpectedResult = new List<Side> {Side.Bottom, Side.Top, Side.Right, Side.Left}
+            }
+        };
+
+        [TestCaseSource(nameof(FlipSideInput))]
+        public List<Side> FlipSideTests(List<Side> sides) => sides.Select(s => s.Flip()).ToList();
+
     }
 }

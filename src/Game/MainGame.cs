@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Game
 {
@@ -46,6 +47,8 @@ namespace Game
 
             LoadLevelFromFile("Level.txt");
             gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
+            gameObjects.ForEach(g => g.DeleteReady += gameObject => gameObjects.Remove(gameObject));
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -61,9 +64,9 @@ namespace Game
 
         private void MoveGameObjects()
         {
-            foreach (GameObject gameObject in gameObjects)
+            for (int i = gameObjects.Count - 1; i >= 0; --i)
             {
-                MoveGameObject(gameObject);
+                MoveGameObject(gameObjects[i]);
             }
         }
 
@@ -158,8 +161,12 @@ namespace Game
             {
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
-                collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides);
-                //gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
+                if (collidedGameObject is Crate && gameObject is Player)
+                {
+                }
+
+                collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides.Select(s => s.Flip()));
+                gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
 
                 if (collidedGameObject == null || collidedGameObject.Box != collidedObjectBox)
                 {

@@ -45,16 +45,21 @@ namespace Game
             otherGameObject.CollideWith(this, sides);
         }
 
-        public override void CollideWith(Wall wall, IEnumerable<Side> sides) => onGround = sides.Contains(Side.Top);
+        public override void CollideWith(Wall wall, IEnumerable<Side> sides) => onGround = sides.Contains(Side.Bottom);
 
         public override void CollideWith(Crate crate, IEnumerable<Side> sides)
         {
-            if (sides.Contains(Side.Top)) 
+            if (sides.Contains(Side.Bottom)) 
             {
                 onGround = true;
             }
 
             crate.Push(sides);
+        }
+
+        public override void CollideWith(Gem crate, IEnumerable<Side> sides)
+        {
+            base.CollideWith(crate, sides);
         }
     }
 }
