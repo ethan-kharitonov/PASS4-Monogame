@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PASS4
+namespace Game
 {
     public static class Program
     {

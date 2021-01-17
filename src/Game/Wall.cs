@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PASS4
+namespace Game
 {
     class Wall : GameObject
     {

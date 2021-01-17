@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PASS4
+namespace Game
 {
     public static class Helper
     {

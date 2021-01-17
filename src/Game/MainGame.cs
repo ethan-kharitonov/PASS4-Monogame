@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.IO;
 
-namespace PASS4
+namespace Game
 {
     public class MainGame : Game
     {
@@ -156,11 +156,6 @@ namespace PASS4
 
             if (firstCollision.Sides.Count != 0)
             {
-                if (gameObject is Crate && collidedGameObject is Crate) 
-                {
-                }
-
-
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides);

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace PASS4
+namespace Game
 {
     class Player : GameObject
     {
