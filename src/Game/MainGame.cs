@@ -168,7 +168,7 @@ namespace Game
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides.Select(s => s.Flip()));
                 gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
 
-                if (collidedGameObject == null || collidedGameObject.Box != collidedObjectBox)
+                if (!gameObjects.Contains(collidedGameObject) || collidedGameObject.Box != collidedObjectBox)
                 {
                     return RestrictVelocity(gameObject, wantedVelocity);
                 }
