@@ -4,13 +4,17 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Game
 {
     public static class Helper
     {
+        public static readonly Random rnd = new Random();
+
         public static ContentManager Content;
+
+        public static float GetRandomBetween(float a, float b) 
+            => (float)(Math.Min(a, b) + rnd.NextDouble() * Math.Abs(a - b));
 
         public static Texture2D LoadImage(string path)
         {

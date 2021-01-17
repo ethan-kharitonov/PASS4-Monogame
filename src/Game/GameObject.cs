@@ -85,5 +85,10 @@ namespace Game
 
         }
 
+        public virtual void CollideWith(Gem crate, IEnumerable<Side> sides)
+        {
+
+        }
+
     }
 }

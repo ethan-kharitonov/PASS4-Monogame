@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Game
 {
-    public class MainGame : Game
+    public class MainGame : Microsoft.Xna.Framework.Game
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
@@ -228,6 +228,9 @@ namespace Game
                             break;
                         case '2':
                             gameObjects.Add(new Crate(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            break;
+                        case '6':
+                            gameObjects.Add(new Gem(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
                             break;
                     }
                 }
