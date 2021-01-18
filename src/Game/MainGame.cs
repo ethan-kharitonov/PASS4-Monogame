@@ -9,6 +9,11 @@ namespace Game
 {
     public class MainGame : Microsoft.Xna.Framework.Game
     {
+        enum GameState
+        {
+            Input,
+            Game
+        }
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
@@ -22,6 +27,13 @@ namespace Game
         public const int WIDTH = NUM_CELLS_WIDTH * CELL_SIDE_LENGTH;
         public const int HEIGHT = NUM_CELLS_HEIGHT * CELL_SIDE_LENGTH;
 
+        private const int INPUT_MENU_HEIGHT = 150;
+
+        private GameState gameState = GameState.Input;
+
+        private string input = string.Empty;
+        private List<Keys> keysPressedLastFrame = new List<Keys>();
+        SpriteFont inputFont;
 
         public MainGame()
         {
@@ -33,7 +45,7 @@ namespace Game
         protected override void Initialize()
         {
             graphics.PreferredBackBufferWidth = WIDTH;
-            graphics.PreferredBackBufferHeight = HEIGHT;
+            graphics.PreferredBackBufferHeight = HEIGHT + INPUT_MENU_HEIGHT;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -44,6 +56,9 @@ namespace Game
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Helper.Content = Content;
+            Helper.graphics = graphics;
+
+            inputFont = Content.Load<SpriteFont>("Fonts/InputFont");
 
             LoadLevelFromFile("Level.txt");
             gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
@@ -56,8 +71,50 @@ namespace Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            gameObjects.ForEach(g => g.Update());
-            MoveGameObjects();
+
+            switch (gameState)
+            {
+                case GameState.Input:
+
+                    var newKyes = Keyboard.GetState().GetPressedKeys();
+                    keysPressedLastFrame = newKyes.Union(keysPressedLastFrame).ToList();
+
+                    for (int i = 0; i < keysPressedLastFrame.Count; i++)
+                    {
+                        Keys key = keysPressedLastFrame[i];
+                        if (!Keyboard.GetState().IsKeyDown(key))
+                        {
+                            keysPressedLastFrame.Remove(key);
+                            if (key == Keys.Back)
+                            {
+                                if(input.Count() == 0)
+                                {
+                                    continue;
+                                }
+
+                                input = input.Substring(0, input.Count() - 1);
+                            }
+                            else
+                            {
+                                if (key.ToString().Count() > 1)
+                                {
+                                    continue;
+                                }
+
+                                input += key.ToString();
+                            }
+
+                          
+
+                        }
+                    }
+                    break;
+                case GameState.Game:
+                    gameObjects.ForEach(g => g.Update());
+                    MoveGameObjects();
+                    break;
+            }
+           
 
             base.Update(gameTime);
         }
@@ -161,10 +218,6 @@ namespace Game
             {
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
-                if (collidedGameObject is Crate && gameObject is Player)
-                {
-                }
-
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides.Select(s => s.Flip()));
                 gameObject.InformCollisionTo(collidedGameObject, firstCollision.Sides);
 
@@ -191,8 +244,6 @@ namespace Game
                 }
             }
 
-           
-
             return wantedVelocity;
         }
 
@@ -212,6 +263,9 @@ namespace Game
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
             gameObjects.ForEach(g => g.Draw(spriteBatch));
+
+            spriteBatch.Draw(Helper.GetRectTexture(WIDTH, INPUT_MENU_HEIGHT, Color.Black), new Vector2(0, HEIGHT), Color.White);
+            spriteBatch.DrawString(inputFont, input, new Vector2(5, 410), Color.White);
 
             spriteBatch.End();
 

@@ -13,6 +13,11 @@ namespace Game
 
         public static ContentManager Content;
 
+        public static GraphicsDeviceManager graphics;
+
+        private static Texture2D rect;
+        private static Color[] data;
+
         public static float GetRandomBetween(float a, float b) 
             => (float)(Math.Min(a, b) + rnd.NextDouble() * Math.Abs(a - b));
 
@@ -155,6 +160,20 @@ namespace Game
 
         public static bool IsPointInsideRectangle(Vector2 point, Rectangle box)
             => box.Left < point.X && point.X < box.Right && box.Top < point.Y && point.Y < box.Bottom;
+
+        public static Texture2D GetRectTexture(int width, int height, Color color)
+        {
+            rect = new Texture2D(graphics.GraphicsDevice, width, height);
+            data = new Color[width * height];
+            for (int i = 0; i < data.Length; ++i)
+            {
+                data[i] = color;
+            }
+
+            rect.SetData(data);
+
+            return rect;
+        }
 
     }
 }
