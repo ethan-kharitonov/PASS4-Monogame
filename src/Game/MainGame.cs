@@ -1,21 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Text;
 
 namespace Game
 {
-    public class MainGame : Microsoft.Xna.Framework.Game
+    class MainGame
     {
-        enum GameState
-        {
-            Input,
-            Game
-        }
-        private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
+        private Screen screen;
 
         private List<GameObject> gameObjects = new List<GameObject>();
 
@@ -27,96 +20,25 @@ namespace Game
         public const int WIDTH = NUM_CELLS_WIDTH * CELL_SIDE_LENGTH;
         public const int HEIGHT = NUM_CELLS_HEIGHT * CELL_SIDE_LENGTH;
 
-        private const int INPUT_MENU_HEIGHT = 150;
-
-        private GameState gameState = GameState.Input;
-
-        private string input = string.Empty;
-        private List<Keys> keysPressedLastFrame = new List<Keys>();
-        SpriteFont inputFont;
-
         public MainGame()
         {
-            graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
-            IsMouseVisible = true;
-        }
-
-        protected override void Initialize()
-        {
-            graphics.PreferredBackBufferWidth = WIDTH;
-            graphics.PreferredBackBufferHeight = HEIGHT + INPUT_MENU_HEIGHT;
-            graphics.ApplyChanges();
-
-            base.Initialize();
-        }
-
-        protected override void LoadContent()
-        {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            Helper.Content = Content;
-            Helper.graphics = graphics;
-
-            inputFont = Content.Load<SpriteFont>("Fonts/InputFont");
+            screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
 
             LoadLevelFromFile("Level.txt");
+
             gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
             gameObjects.ForEach(g => g.DeleteReady += gameObject => gameObjects.Remove(gameObject));
-
         }
 
-        protected override void Update(GameTime gameTime)
+        public void Update()
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            gameObjects.ForEach(g => g.Update());
+            MoveGameObjects();
+        }
 
-
-            switch (gameState)
-            {
-                case GameState.Input:
-
-                    var newKyes = Keyboard.GetState().GetPressedKeys();
-                    keysPressedLastFrame = newKyes.Union(keysPressedLastFrame).ToList();
-
-                    for (int i = 0; i < keysPressedLastFrame.Count; i++)
-                    {
-                        Keys key = keysPressedLastFrame[i];
-                        if (!Keyboard.GetState().IsKeyDown(key))
-                        {
-                            keysPressedLastFrame.Remove(key);
-                            if (key == Keys.Back)
-                            {
-                                if(input.Count() == 0)
-                                {
-                                    continue;
-                                }
-
-                                input = input.Substring(0, input.Count() - 1);
-                            }
-                            else
-                            {
-                                if (key.ToString().Count() > 1)
-                                {
-                                    continue;
-                                }
-
-                                input += key.ToString();
-                            }
-
-                          
-
-                        }
-                    }
-                    break;
-                case GameState.Game:
-                    gameObjects.ForEach(g => g.Update());
-                    MoveGameObjects();
-                    break;
-            }
-           
-
-            base.Update(gameTime);
+        public void Draw()
+        {
+            gameObjects.ForEach(g => g.Draw(screen));
         }
 
         private void MoveGameObjects()
@@ -162,7 +84,7 @@ namespace Game
                         curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
                     { continue; }
 
-                    if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length() 
+                    if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length()
                         || (curCollision.Distance.Length() == firstCollision.Distance.Length() && curCollision.Sides.Count < firstCollision.Sides.Count)))
                     {
                         collidedGameObject = otherGameObject;
@@ -258,19 +180,6 @@ namespace Game
                 }
             }
         }
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
-            gameObjects.ForEach(g => g.Draw(spriteBatch));
-
-            spriteBatch.Draw(Helper.GetRectTexture(WIDTH, INPUT_MENU_HEIGHT, Color.Black), new Vector2(0, HEIGHT), Color.White);
-            spriteBatch.DrawString(inputFont, input, new Vector2(5, 410), Color.White);
-
-            spriteBatch.End();
-
-            base.Draw(gameTime);
-        }
 
         private void LoadLevelFromFile(string path)
         {
@@ -297,5 +206,6 @@ namespace Game
                 }
             }
         }
+
     }
 }

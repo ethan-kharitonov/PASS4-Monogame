@@ -51,9 +51,9 @@ namespace Game
 
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(Screen screen)
         {
-            spriteBatch.Draw(image, box, Color.White);
+            screen.Draw(image, box);
         }
 
         protected void InvokeMoveReady(Vector2 delta)

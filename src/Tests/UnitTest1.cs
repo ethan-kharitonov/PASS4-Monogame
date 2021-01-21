@@ -220,7 +220,7 @@ namespace Tests
         };
 
         [TestCaseSource(nameof(GetRayStatingPointsOnBoxInput))]
-        public List<Vector2> GetRayStatingPointsOnBoxTests(Rectangle box) => MainGame.GetRayStatingPointsOnBox(box).ToList();
+        public List<Vector2> GetRayStatingPointsOnBoxTests(Rectangle box) => Main.GetRayStatingPointsOnBox(box).ToList();
 
 
         private static readonly TestCaseData[] FlipSideInput = new[]
