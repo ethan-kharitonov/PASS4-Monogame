@@ -281,12 +281,6 @@ namespace Tests
                 ExpectedResult = "A, D, D, A, ",
                 TestName = "Single loop"
             },
-
-            new TestCaseData("AS3CFAS3DFA")
-            {
-                ExpectedResult = "A, C, C, C, A, D, D, D, A, ",
-                TestName = "asd"
-            },
         };
 
         [TestCaseSource(nameof(ReadPlayerInputInput))]
