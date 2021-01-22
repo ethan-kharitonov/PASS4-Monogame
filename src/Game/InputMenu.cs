@@ -29,7 +29,12 @@ namespace Game
                 }
                 else
                 {
-                    if(nestedLoop == null)
+                    if (!allowNestedLoops)
+                    {
+                        throw new Exception("Nested loops are not allowed");
+                    }
+
+                    if (nestedLoop == null)
                     {
                         nestedLoop = new LoopInfo();
                     }
@@ -180,11 +185,6 @@ namespace Game
                 }
                 else if(input[i] == 'S')
                 {
-                    if(loopInfo.StartIndex != -1)
-                    {
-                        throw new FormatException("Nested loops are not allowed");
-                    }
-
                     int num = Convert.ToInt32(input[i + 1]) - '0';
                     if(num < 0 || num > 9)
                     {
