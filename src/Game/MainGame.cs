@@ -2,28 +2,34 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Game
 {
-    class MainGame
+    class MainGame : ISection
     {
-        private Screen screen;
+        public static readonly MainGame Instance = new MainGame();
 
         private List<GameObject> gameObjects = new List<GameObject>();
 
-        public const int CELL_SIDE_LENGTH = 45;
+        private const int NUM_CELLS_WIDTH = 20;
+        private const int NUM_CELLS_HEIGHT = 9;
 
-        public const int NUM_CELLS_WIDTH = 20;
-        public const int NUM_CELLS_HEIGHT = 9;
+        public const int CELL_SIDE_LENGTH = 45;
 
         public const int WIDTH = NUM_CELLS_WIDTH * CELL_SIDE_LENGTH;
         public const int HEIGHT = NUM_CELLS_HEIGHT * CELL_SIDE_LENGTH;
 
-        public MainGame()
+        private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
+       
+        private MainGame()
         {
-            screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
+           
+        }
 
+        public void LoadContent()
+        {
             LoadLevelFromFile("Level.txt");
 
             gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
@@ -74,7 +80,7 @@ namespace Game
                     continue;
                 }
 
-                foreach (Vector2 rayStartPoint in GetRayStatingPointsOnBox(gameObject.Box))
+                foreach (Vector2 rayStartPoint in Helper.GetVertecies(gameObject.Box))
                 {
                     curCollision = Helper.RayBoxFirstCollision(new Line(rayStartPoint, rayStartPoint + wantedVelocity), otherGameObject.Box);
 
@@ -169,18 +175,6 @@ namespace Game
             return wantedVelocity;
         }
 
-        public static IEnumerable<Vector2> GetRayStatingPointsOnBox(Rectangle box)
-        {
-
-            for (int c = 0; c < 2; ++c)
-            {
-                for (int r = 0; r < 2; ++r)
-                {
-                    yield return new Vector2(box.Location.X + c * box.Width, box.Location.Y + r * box.Height);
-                }
-            }
-        }
-
         private void LoadLevelFromFile(string path)
         {
             string[] lines = File.ReadAllLines(path);
@@ -207,5 +201,8 @@ namespace Game
             }
         }
 
+        public int GetMaxX() => screen.GetMaxX();
+
+        public int GetMaxY() => screen.GetMaxY();
     }
 }

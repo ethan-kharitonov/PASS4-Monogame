@@ -175,5 +175,19 @@ namespace Game
             return rect;
         }
 
+        public static IEnumerable<Vector2> GetVertecies(Rectangle box)
+        {
+            for (int c = 0; c < 2; ++c)
+            {
+                for (int r = 0; r < 2; ++r)
+                {
+                    yield return new Vector2(box.Location.X + c * box.Width, box.Location.Y + r * box.Height);
+                }
+            }
+        }
+
+        public static bool IsPointInOrOnRectangle(Vector2 point, Rectangle box) 
+            => IsBetween(box.Left, point.X, box.Right) && IsBetween(box.Top, point.Y, box.Bottom);
+
     }
 }

@@ -220,7 +220,7 @@ namespace Tests
         };
 
         [TestCaseSource(nameof(GetRayStatingPointsOnBoxInput))]
-        public List<Vector2> GetRayStatingPointsOnBoxTests(Rectangle box) => Main.GetRayStatingPointsOnBox(box).ToList();
+        public List<Vector2> GetRayStatingPointsOnBoxTests(Rectangle box) => Helper.GetVertecies(box).ToList();
 
 
         private static readonly TestCaseData[] FlipSideInput = new[]
@@ -233,6 +233,61 @@ namespace Tests
 
         [TestCaseSource(nameof(FlipSideInput))]
         public List<Side> FlipSideTests(List<Side> sides) => sides.Select(s => s.Flip()).ToList();
+
+        private static readonly TestCaseData[] IsPointInOrOnRectangleInput = new[]
+        {
+            new TestCaseData(new Vector2(205, 205), new Rectangle(200, 200, 10, 10))
+            {
+                ExpectedResult = true,
+                TestName = "PointFullyInsideSquare"
+            },
+
+            new TestCaseData(new Vector2(200, 205), new Rectangle(200, 200, 10, 10))
+            {
+                ExpectedResult = true,
+                TestName = "PointLiesOnLeftSideOfSquare"
+            },
+
+            new TestCaseData(new Vector2(200, 200), new Rectangle(200, 200, 10, 10))
+            {
+                ExpectedResult = true,
+                TestName = "PointOnTopLeftCornerOfSquare"
+            },
+
+            new TestCaseData(new Vector2(195, 72), new Rectangle(200, 200, 10, 10))
+            {
+                ExpectedResult = false,
+                TestName = "PointOutsideOfSquare"
+            }
+        };
+
+        [TestCaseSource(nameof(IsPointInOrOnRectangleInput))]
+        public bool IsPointInOrOnRectangleTests(Vector2 point, Rectangle box)
+        {
+            return Helper.IsPointInOrOnRectangle(point, box);
+        }
+
+
+        private static readonly TestCaseData[] ReadPlayerInputInput = new[]
+        {
+            new TestCaseData("AS2DFA")
+            {
+                ExpectedResult = "A, D, D, A, ",
+                TestName = "Single loop"
+            },
+
+            new TestCaseData("AAS2DS2CCFDFAA")
+            {
+                ExpectedResult = "A, A, D, C, C, C, C, D, D, C, C, C, C, D, A, A, ",
+                TestName = "Nested loop"
+            }
+        };
+
+        [TestCaseSource(nameof(ReadPlayerInputInput))]
+        public string ReadPlayerInputTests(string input)
+        {
+            return InputMenu.ReadPlayerInput(input).ToString();
+        }
 
     }
 }

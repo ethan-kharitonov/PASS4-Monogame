@@ -22,9 +22,9 @@ namespace Game
         
         public Gem(int x, int y) : base(image, x, y, width, height)
         {
-            baseLine = y + Main.CELL_SIDE_LENGTH / 2 - height / 2;
+            baseLine = y + MainGame.CELL_SIDE_LENGTH / 2 - height / 2;
 
-            TruePosition = new Vector2(x + Main.CELL_SIDE_LENGTH / 2 - width / 2, baseLine);
+            TruePosition = new Vector2(x + MainGame.CELL_SIDE_LENGTH / 2 - width / 2, baseLine);
         }
 
         public override void Update()
