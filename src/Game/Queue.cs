@@ -8,6 +8,7 @@ namespace Game
     {
         LinkedList<T> items = new LinkedList<T>();
 
+        public bool IsEmpty => items.IsEmpty;
         public void Enqueue(T item) => items.AddToTail(item);
 
         public T Dequeue() => items.RemoveFromHead();

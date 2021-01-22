@@ -78,7 +78,8 @@ namespace Game
         private enum Stage
         {
             Input,
-            Proccessing
+            Proccessing,
+            Waiting
         }
 
         private Stage stage = Stage.Input;
@@ -91,6 +92,10 @@ namespace Game
         private SpriteFont inputFont;
 
         private const int HEIGHT = 150;
+
+        public delegate void TakeCommands(Queue<char> commands);
+
+        public event TakeCommands CommandReadingComplete;
 
         private InputMenu()
         {
@@ -155,12 +160,20 @@ namespace Game
                     {
                         Queue<char> commands = ReadPlayerInput(input);
                         inputMessage = "Passed";
+
+                        if (CommandReadingComplete != null)
+                        {
+                            CommandReadingComplete.Invoke(commands);
+                        }
+                        stage = Stage.Waiting;
                     }
                     catch (Exception e)
                     {
                         inputMessage = e.Message;
                     }
 
+                    break;
+                case Stage.Waiting:
                     break;
             }
         }

@@ -15,8 +15,8 @@ namespace Game
 
         private ISection[] sections = new ISection[]
         {
-                MainGame.Instance,
-                InputMenu.Instance
+            MainGame.Instance,
+            InputMenu.Instance
         };
 
         public Main()
@@ -43,6 +43,8 @@ namespace Game
             Helper.Content = Content;
             Helper.graphics = graphics;
 
+
+            InputMenu.Instance.CommandReadingComplete += q => MainGame.Instance.LoadCommands(q);
             foreach (ISection section in sections)
             {
                 section.LoadContent();

@@ -22,12 +22,20 @@ namespace Game
         public const int HEIGHT = NUM_CELLS_HEIGHT * CELL_SIDE_LENGTH;
 
         private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
-       
+
+
+        private Player player;
+        private Queue<char> commands = new Queue<char>();
+
         private MainGame()
         {
-           
+
         }
 
+        public void LoadCommands(Queue<char> commands)
+        {
+            this.commands = commands;
+        }
         public void LoadContent()
         {
             LoadLevelFromFile("Level.txt");
@@ -38,7 +46,13 @@ namespace Game
 
         public void Update()
         {
+            if (!commands.IsEmpty && gameObjects.All(g => g.Velocity == Vector2.Zero))
+            {
+                player.LoadNextCommand(commands.Dequeue());
+            }
             gameObjects.ForEach(g => g.Update());
+
+
             MoveGameObjects();
         }
 
@@ -114,25 +128,25 @@ namespace Game
                     {
                         collidedGameObject = otherGameObject;
 
-                        if (gameObject.Box.Bottom <= otherGameObject.Box.Top)
+                        if (gameObject.Box.Bottom - 10 <= otherGameObject.Box.Top)
                         {
                             firstCollision.Distance.Y = otherGameObject.Box.Top - gameObject.Box.Bottom;
                             firstCollision.Sides.Add(Side.Top);
                         }
 
-                        if (gameObject.Box.Top >= otherGameObject.Box.Bottom)
+                        if (gameObject.Box.Top + 10 >= otherGameObject.Box.Bottom)
                         {
                             firstCollision.Distance.Y = otherGameObject.Box.Bottom - gameObject.Box.Top;
                             firstCollision.Sides.Add(Side.Bottom);
                         }
 
-                        if (gameObject.Box.Right <= otherGameObject.Box.Left)
+                        if (gameObject.Box.Right - 10 <= otherGameObject.Box.Left)
                         {
                             firstCollision.Distance.X = otherGameObject.Box.Left - gameObject.Box.Right;
                             firstCollision.Sides.Add(Side.Left);
                         }
 
-                        if (gameObject.Box.Left >= otherGameObject.Box.Right)
+                        if (gameObject.Box.Left + 10 >= otherGameObject.Box.Right)
                         {
                             firstCollision.Distance.X = otherGameObject.Box.Right - gameObject.Box.Left;
                             firstCollision.Sides.Add(Side.Right);
@@ -185,7 +199,8 @@ namespace Game
                     switch (lines[r][c])
                     {
                         case '0':
-                            gameObjects.Add(new Player(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            player = new Player(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH);
+                            gameObjects.Add(player);
                             break;
                         case '1':
                             gameObjects.Add(new Wall(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));

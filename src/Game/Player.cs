@@ -4,40 +4,73 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace Game
 {
     class Player : GameObject
     {
-        private static readonly new Texture2D image = Helper.LoadImage("Images/Player");
+        private static readonly Texture2D image = Helper.LoadImage("Images/Player");
 
-        private static readonly float imgScaleFactor = 0.055f;
+        private static readonly float imgScaleFactor = 0.06f;
         private static readonly int width = (int)Math.Round(image.Width * imgScaleFactor);
         private static readonly int height = (int)Math.Round(image.Height * imgScaleFactor);
 
         private bool onGround = true;
 
         private float gravity = 1;
-        private float xSpeed = 2;
-        private float initalJumpSpeed = -10;
-        public Player(int x, int y) : base(image, x, y, width, height)
-        {
+        private float xSpeed = 2f;
+        private float initalJumpSpeed = -13f;
 
+        private float xTargetPosition;
+
+        private float waitingXSpeed = 0;
+        public Player(int x, int y) : base(image, x + 1, y, width, height)
+        {
+            TruePosition = new Vector2(TruePosition.X + MainGame.CELL_SIDE_LENGTH - width, TruePosition.Y);
+            xTargetPosition = TruePosition.X;
         }
 
         public override void Update()
         {
-            KeyboardState kb = Keyboard.GetState();
-            Velocity.X = xSpeed * (Convert.ToInt16(kb.IsKeyDown(Keys.D)) - Convert.ToInt32(kb.IsKeyDown(Keys.A)));
-
-            Velocity.Y += gravity;
-
-            if(onGround && kb.IsKeyDown(Keys.Space))
+            if (Velocity.X != 0 && Math.Abs(xTargetPosition - TruePosition.X) < xSpeed)
             {
-                onGround = false;
-                Velocity.Y = initalJumpSpeed;
+                TruePosition = new Vector2(xTargetPosition, TruePosition.Y);
+
+                Velocity.X = 0;
+            }
+            else if (Velocity.Y != 0 && Velocity.X == 0)
+            {
+                Velocity.X = waitingXSpeed;
             }
 
+            Velocity.Y += gravity;
+        }
+
+        public void LoadNextCommand(char command)
+        {
+            waitingXSpeed = 0;
+            switch (command)
+            {
+                case 'A':
+                    Velocity.X = -xSpeed;
+                    xTargetPosition = TruePosition.X - MainGame.CELL_SIDE_LENGTH;
+                    break;
+                case 'D':
+                    Velocity.X = xSpeed;
+                    xTargetPosition = TruePosition.X + (int)((TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    break;
+                case 'E':
+                    Velocity.Y = initalJumpSpeed;
+                    waitingXSpeed = xSpeed;
+                    xTargetPosition = TruePosition.X + MainGame.CELL_SIDE_LENGTH;
+                    break;
+                case 'Q':
+                  /*  LoadNextCommand('A');
+                    Velocity.Y = initalJumpSpeed;
+                    targetPosition = targetPosition + new Vector2(0, -MainGame.CELL_SIDE_LENGTH);*/
+                    break;
+            }
         }
 
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
@@ -55,7 +88,7 @@ namespace Game
 
         public override void CollideWith(Crate crate, IEnumerable<Side> sides)
         {
-            if (sides.Contains(Side.Bottom)) 
+            if (sides.Contains(Side.Bottom))
             {
                 onGround = true;
             }

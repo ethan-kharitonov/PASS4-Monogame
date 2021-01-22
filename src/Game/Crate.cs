@@ -8,13 +8,12 @@ namespace Game
 {
     class Crate : GameObject
     {
-        private static readonly new Texture2D image = Helper.LoadImage("Images/Crate");
+        private static readonly Texture2D image = Helper.LoadImage("Images/Crate");
 
         private static float gravity = 1;
 
         private HashSet<Crate> cratesAbove = new HashSet<Crate>();
         private HashSet<Crate> cratesBelow = new HashSet<Crate>();
-
 
         public Crate(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
         {

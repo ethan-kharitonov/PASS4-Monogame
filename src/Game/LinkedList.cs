@@ -26,6 +26,8 @@ namespace Game
 
         private Node head;
 
+        public bool IsEmpty => head == null;
+
         public void AddToTail(T data)
         {
             if (head == null) 
