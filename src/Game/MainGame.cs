@@ -23,7 +23,6 @@ namespace Game
 
         private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
 
-
         private Player player;
         private Queue<char> commands = new Queue<char>();
 

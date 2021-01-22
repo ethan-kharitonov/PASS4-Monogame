@@ -23,8 +23,9 @@ namespace Game
         private float initalJumpSpeed = -13f;
 
         private float xTargetPosition;
+        private float xTargetVelocity = 0;
 
-        private float waitingXSpeed = 0;
+
         public Player(int x, int y) : base(image, x + 1, y, width, height)
         {
             TruePosition = new Vector2(TruePosition.X + MainGame.CELL_SIDE_LENGTH - width, TruePosition.Y);
@@ -38,10 +39,12 @@ namespace Game
                 TruePosition = new Vector2(xTargetPosition, TruePosition.Y);
 
                 Velocity.X = 0;
+                xTargetVelocity = 0;
             }
-            else if (Velocity.Y != 0 && Velocity.X == 0)
+
+            if (Velocity.Y != 0 && xTargetVelocity != Velocity.X)
             {
-                Velocity.X = waitingXSpeed;
+                Velocity.X = xTargetVelocity;
             }
 
             Velocity.Y += gravity;
@@ -49,26 +52,26 @@ namespace Game
 
         public void LoadNextCommand(char command)
         {
-            waitingXSpeed = 0;
+            xTargetVelocity = 0;
             switch (command)
             {
                 case 'A':
                     Velocity.X = -xSpeed;
-                    xTargetPosition = TruePosition.X - MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case 'D':
                     Velocity.X = xSpeed;
-                    xTargetPosition = TruePosition.X + (int)((TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'E':
                     Velocity.Y = initalJumpSpeed;
-                    waitingXSpeed = xSpeed;
-                    xTargetPosition = TruePosition.X + MainGame.CELL_SIDE_LENGTH;
+                    xTargetVelocity = xSpeed;
+                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'Q':
-                  /*  LoadNextCommand('A');
                     Velocity.Y = initalJumpSpeed;
-                    targetPosition = targetPosition + new Vector2(0, -MainGame.CELL_SIDE_LENGTH);*/
+                    xTargetVelocity = -xSpeed;
+                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
             }
         }
