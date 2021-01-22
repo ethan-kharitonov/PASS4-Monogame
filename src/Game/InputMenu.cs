@@ -79,7 +79,7 @@ namespace Game
         public static readonly InputMenu Instance = new InputMenu();
 
         private string input = string.Empty;
-        private string inputMessage = "STATUS: ";
+        private string inputMessage = "";
 
         private List<Keys> keysPressedLastFrame = new List<Keys>();
         private SpriteFont inputFont;
@@ -103,6 +103,7 @@ namespace Game
             switch (stage)
             {
                 case Stage.Input:
+                    
                     Keys[] newKeys = Keyboard.GetState().GetPressedKeys();
                     keysPressedLastFrame = newKeys.Union(keysPressedLastFrame).ToList();
 
@@ -143,9 +144,16 @@ namespace Game
                     }
                     break;
                 case Stage.Proccessing:
-
-                    Queue<char> commands = ReadPlayerInput(input);
-
+                   
+                    try
+                    {
+                        Queue<char> commands = ReadPlayerInput(input);
+                        inputMessage = "Passed";
+                    }
+                    catch (Exception e)
+                    {
+                        inputMessage = e.Message;
+                    }
 
                     break;
             }
@@ -157,27 +165,52 @@ namespace Game
             LoopInfo loopInfo = new LoopInfo();
             for (int i = 0; i < input.Length; ++i)
             {
-                if (i < input.Length && input[i] == 'F' && loopInfo.DecrementNumIterations())
+                if (i < input.Length && input[i] == 'F')
                 {
-                    i = loopInfo.StartIndex - 1;
+                    if(loopInfo.StartIndex == -1)
+                    {
+                        throw new FormatException("Loops must start with 'S'");
+                    }
+
+                    if (loopInfo.DecrementNumIterations())
+                    {
+                        i = loopInfo.StartIndex - 1;
+                    }
                 }
                 else if(input[i] == 'S')
                 {
-                    try
+                    int num = Convert.ToInt32(input[i + 1]) - '0';
+                    if(num < 0 || num > 9)
                     {
-                        loopInfo.StartLoop(i + 2, Convert.ToInt32(input[i + 1]) - '0' - 1);
-                    }
-                    catch (FormatException)
-                    {
-                        throw new FormatException("All loop starts (S) must be followed with a digit (1 - 9)");
+                        throw new FormatException("All loop starts (S) must be followed with a digit (1 - 9).");
                     }
 
+                    loopInfo.StartLoop(i + 2, Convert.ToInt32(input[i + 1]) - '0' - 1);
                     i += 1;
                 }
                 else if (input[i] == 'A' || input[i] == 'C' || input[i] == 'D' || input[i] == 'E' || input[i] == 'Q')
                 {
                     commands.Enqueue(input[i]);
                 }
+                else
+                {
+                    if (i > 0)
+                    {
+
+                        int curNum = Convert.ToInt32(input[i]) - '0';
+                        int lastNum = Convert.ToInt32(input[i - 1]) - '0';
+                        if(Helper.IsBetween(1, curNum, 9) && Helper.IsBetween(1, lastNum, 9))
+                        {
+                            throw new FormatException("Loops can have a maximum of 9 iterations.");
+                        }
+                    }
+                    throw new FormatException($"{input[i]} is not a valid input charchter.");
+                }
+            }
+
+            if(loopInfo.StartIndex != -1)
+            {
+                throw new FormatException("All loops must be closed with an 'F'.");
             }
 
             return commands;
@@ -187,7 +220,8 @@ namespace Game
         {
             screen.Draw(Helper.GetRectTexture(MainGame.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, MainGame.WIDTH, HEIGHT));
             screen.DrawText(inputFont, input, new Vector2(5, 5), Color.White);
-            screen.DrawText(inputFont, inputMessage, new Vector2(5, 30), Color.White);
+            screen.DrawText(inputFont, "Status: ", new Vector2(5, 30), Color.White);
+            screen.DrawText(inputFont, inputMessage, new Vector2(inputFont.MeasureString("Status:x").X, 30), Color.White);
         }
 
         public int GetMaxX() => screen.GetMaxX();

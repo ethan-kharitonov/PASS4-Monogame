@@ -285,7 +285,7 @@ namespace Tests
             new TestCaseData("AS3CFAS3DFA")
             {
                 ExpectedResult = "A, C, C, C, A, D, D, D, A, ",
-                TestName = "ConsecutiveLoops"
+                TestName = "asd"
             },
         };
 
