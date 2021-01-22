@@ -41,7 +41,13 @@ namespace Game
             {
                 if(nestedLoop != null)
                 {
-                    return nestedLoop.DecrementNumIterations();
+                    if (nestedLoop.DecrementNumIterations())
+                    {
+                        return true;
+                    }
+
+                    nestedLoop = null;
+                    return false;
                 }
 
                 if(numIterations == 0)

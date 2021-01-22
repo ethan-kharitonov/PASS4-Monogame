@@ -270,17 +270,23 @@ namespace Tests
 
         private static readonly TestCaseData[] ReadPlayerInputInput = new[]
         {
+            new TestCaseData("AAS2DS2CCFDFAA")
+            {
+                ExpectedResult = "A, A, D, C, C, C, C, D, D, C, C, C, C, D, A, A, ",
+                TestName = "Nested Looap"
+            }, 
+
             new TestCaseData("AS2DFA")
             {
                 ExpectedResult = "A, D, D, A, ",
                 TestName = "Single loop"
             },
 
-            new TestCaseData("AAS2DS2CCFDFAA")
+            new TestCaseData("AS3CFAS3DFA")
             {
-                ExpectedResult = "A, A, D, C, C, C, C, D, D, C, C, C, C, D, A, A, ",
-                TestName = "Nested loop"
-            }
+                ExpectedResult = "A, C, C, C, A, D, D, D, A, ",
+                TestName = "ConsecutiveLoops"
+            },
         };
 
         [TestCaseSource(nameof(ReadPlayerInputInput))]
