@@ -132,6 +132,14 @@ namespace Game
                                 }
 
                                 input = input.Substring(0, input.Count() - 1);
+                            } 
+                            else if (key == Keys.OemPlus)
+                            {
+                                input += "+";
+                            }
+                            else if (key == Keys.OemMinus)
+                            {
+                                input += "-";
                             }
                             else if (key == Keys.Enter)
                             {
@@ -186,7 +194,7 @@ namespace Game
             {
                 if (i < input.Length && input[i] == 'F')
                 {
-                    if(loopInfo.StartIndex == -1)
+                    if (loopInfo.StartIndex == -1)
                     {
                         throw new FormatException("Loops must start with 'S'");
                     }
@@ -196,10 +204,10 @@ namespace Game
                         i = loopInfo.StartIndex - 1;
                     }
                 }
-                else if(input[i] == 'S')
+                else if (input[i] == 'S')
                 {
                     int num = Convert.ToInt32(input[i + 1]) - '0';
-                    if(num < 0 || num > 9)
+                    if (num < 0 || num > 9)
                     {
                         throw new FormatException("All loop starts (S) must be followed with a digit (1 - 9).");
                     }
@@ -207,7 +215,7 @@ namespace Game
                     loopInfo.StartLoop(i + 2, Convert.ToInt32(input[i + 1]) - '0' - 1);
                     i += 1;
                 }
-                else if (input[i] == 'A' || input[i] == 'C' || input[i] == 'D' || input[i] == 'E' || input[i] == 'Q')
+                else if (input[i] == 'A' || input[i] == 'C' || input[i] == 'D' || input[i] == 'E' || input[i] == 'Q' || input[i] == '+' || input[i] == '-')
                 {
                     commands.Enqueue(input[i]);
                 }
@@ -232,6 +240,11 @@ namespace Game
                 throw new FormatException("All loops must be closed with an 'F'.");
             }
 
+            if (commands.IsEmpty)
+            {
+                throw new Exception("The input cannot be empty");
+            }
+
             return commands;
         }
 
@@ -247,5 +260,11 @@ namespace Game
 
         public int GetMaxY() => screen.GetMaxY();
 
+        public void StartInputProcess()
+        {
+            stage = Stage.Input;
+            input = string.Empty;
+            inputMessage = string.Empty;
+        }
     }
 }

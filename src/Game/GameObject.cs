@@ -90,5 +90,10 @@ namespace Game
 
         }
 
+        public virtual void CollideWith(Spike spike, IEnumerable<Side> sides)
+        {
+
+        }
+
     }
 }

@@ -43,8 +43,9 @@ namespace Game
             Helper.Content = Content;
             Helper.graphics = graphics;
 
-
+            MainGame.Instance.OutOfCommands += () => InputMenu.Instance.StartInputProcess();
             InputMenu.Instance.CommandReadingComplete += q => MainGame.Instance.LoadCommands(q);
+
             foreach (ISection section in sections)
             {
                 section.LoadContent();

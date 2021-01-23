@@ -17,6 +17,7 @@ namespace Game
         private static readonly int height = (int)Math.Round(image.Height * imgScaleFactor);
 
         private bool onGround = true;
+        private bool isPushing = false;
 
         private float gravity = 1;
         private float xSpeed = 2f;
@@ -52,6 +53,7 @@ namespace Game
 
         public void LoadNextCommand(char command)
         {
+            isPushing = false;
             xTargetVelocity = 0;
             switch (command)
             {
@@ -72,6 +74,14 @@ namespace Game
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = -xSpeed;
                     xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    break;
+                case '+':
+                    LoadNextCommand('D');
+                    isPushing = true;
+                    break;
+                case '-':
+                    LoadNextCommand('A');
+                    isPushing = true;
                     break;
             }
         }
@@ -96,12 +106,20 @@ namespace Game
                 onGround = true;
             }
 
-            crate.Push(sides);
+            if (isPushing)
+            {
+                crate.Push(sides);
+            }
         }
 
         public override void CollideWith(Gem crate, IEnumerable<Side> sides)
         {
             base.CollideWith(crate, sides);
+        }
+
+        public override void CollideWith(Spike spike, IEnumerable<Side> sides)
+        {
+            TruePosition = new Vector2(100, 100);
         }
     }
 }

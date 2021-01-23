@@ -23,6 +23,10 @@ namespace Game
 
         private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
 
+        public delegate void Notify();
+
+        public event Notify OutOfCommands;
+
         private Player player;
         private Queue<char> commands = new Queue<char>();
 
@@ -48,6 +52,13 @@ namespace Game
             if (!commands.IsEmpty && gameObjects.All(g => g.Velocity == Vector2.Zero))
             {
                 player.LoadNextCommand(commands.Dequeue());
+                if (commands.IsEmpty)
+                {
+                    if (OutOfCommands != null)
+                    {
+                        OutOfCommands.Invoke();
+                    }
+                }
             }
             gameObjects.ForEach(g => g.Update());
 
@@ -206,6 +217,9 @@ namespace Game
                             break;
                         case '2':
                             gameObjects.Add(new Crate(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            break;
+                        case '5':
+                            gameObjects.Add(new Spike(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
                             break;
                         case '6':
                             gameObjects.Add(new Gem(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));

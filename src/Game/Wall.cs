@@ -11,7 +11,6 @@ namespace Game
 
         public Wall(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
         {
-
         }
 
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
