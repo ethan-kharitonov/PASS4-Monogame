@@ -95,5 +95,17 @@ namespace Game
 
         }
 
+        public virtual void CollideWith(Key key, IEnumerable<Side> sides)
+        {
+
+        }
+
+        public virtual bool IsStandingStill() => Velocity == Vector2.Zero;
+
+        /*public virtual void ApplyGravity()
+        {
+
+        }*/
+
     }
 }

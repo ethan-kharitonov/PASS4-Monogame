@@ -12,9 +12,9 @@ namespace Game
     {
         private static readonly Texture2D image = Helper.LoadImage("Images/Player");
 
-        private static readonly float imgScaleFactor = 0.06f;
-        private static readonly int width = (int)Math.Round(image.Width * imgScaleFactor);
-        private static readonly int height = (int)Math.Round(image.Height * imgScaleFactor);
+        //private static readonly float imgScaleFactor = 0.06f;
+        private static readonly int height = 45;// (int)Math.Round(image.Height * imgScaleFactor);
+        private static readonly int width = height * image.Width/image.Height;// (int)Math.Round(image.Width * imgScaleFactor);
 
         private bool onGround = true;
         private bool isPushing = false;
@@ -26,15 +26,30 @@ namespace Game
         private float xTargetPosition;
         private float xTargetVelocity = 0;
 
+        private bool keyCollected = false;
+        private bool movingOnY = false;
+
+
+        private bool HitWallFromBottom = false;
 
         public Player(int x, int y) : base(image, x + 1, y, width, height)
         {
-            TruePosition = new Vector2(TruePosition.X + MainGame.CELL_SIDE_LENGTH - width, TruePosition.Y);
             xTargetPosition = TruePosition.X;
         }
 
         public override void Update()
         {
+            if (TruePosition.Y % MainGame.CELL_SIDE_LENGTH != 0 && Velocity.Y != gravity)
+            {
+                onGround = false;
+            }
+
+
+            if(movingOnY)
+            {
+                Velocity.X = xTargetVelocity;
+            }
+
             if (Velocity.X != 0 && Math.Abs(xTargetPosition - TruePosition.X) < xSpeed)
             {
                 TruePosition = new Vector2(xTargetPosition, TruePosition.Y);
@@ -43,18 +58,24 @@ namespace Game
                 xTargetVelocity = 0;
             }
 
-            if (Velocity.Y != 0 && xTargetVelocity != Velocity.X)
-            {
-                Velocity.X = xTargetVelocity;
-            }
 
-            Velocity.Y += gravity;
+            if (!HitWallFromBottom)
+            {
+                Velocity.Y += gravity;
+            }
+            else
+            {
+                HitWallFromBottom = false;
+            }
+            
         }
 
         public void LoadNextCommand(char command)
         {
+            movingOnY = false;
             isPushing = false;
             xTargetVelocity = 0;
+
             switch (command)
             {
                 case 'A':
@@ -66,11 +87,13 @@ namespace Game
                     xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'E':
+                    movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = xSpeed;
                     xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'Q':
+                    movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = -xSpeed;
                     xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
@@ -97,6 +120,11 @@ namespace Game
             {
                 onGround = true;
             }
+
+            if (sides.Contains(Side.Top))
+            {
+                HitWallFromBottom = true;
+            }
         }
 
         public override void CollideWith(Crate crate, IEnumerable<Side> sides)
@@ -120,6 +148,16 @@ namespace Game
         public override void CollideWith(Spike spike, IEnumerable<Side> sides)
         {
             TruePosition = new Vector2(100, 100);
+        }
+
+        public override void CollideWith(Key key, IEnumerable<Side> sides)
+        {
+            keyCollected = true;
+        }
+
+        public override bool IsStandingStill()
+        {
+            return base.IsStandingStill() && onGround;
         }
     }
 }

@@ -38,6 +38,7 @@ namespace Game
         public void LoadCommands(Queue<char> commands)
         {
             this.commands = commands;
+            commands.Enqueue('X');
         }
         public void LoadContent()
         {
@@ -49,19 +50,15 @@ namespace Game
 
         public void Update()
         {
-            if (!commands.IsEmpty && gameObjects.All(g => g.Velocity == Vector2.Zero))
+            if (!commands.IsEmpty && gameObjects.All(g => g.IsStandingStill()))
             {
                 player.LoadNextCommand(commands.Dequeue());
                 if (commands.IsEmpty)
                 {
-                    if (OutOfCommands != null)
-                    {
-                        OutOfCommands.Invoke();
-                    }
+                    OutOfCommands.Invoke();
                 }
             }
-            gameObjects.ForEach(g => g.Update());
-
+            gameObjects.ForEach(g =>  g.Update());
 
             MoveGameObjects();
         }
@@ -75,6 +72,10 @@ namespace Game
         {
             for (int i = gameObjects.Count - 1; i >= 0; --i)
             {
+                if(gameObjects[i] is Player)
+                {
+
+                }
                 MoveGameObject(gameObjects[i]);
             }
         }
@@ -112,7 +113,9 @@ namespace Game
                         curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right ||
                         curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top ||
                         curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
-                    { continue; }
+                    { 
+                        continue; 
+                    }
 
                     if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length()
                         || (curCollision.Distance.Length() == firstCollision.Distance.Length() && curCollision.Sides.Count < firstCollision.Sides.Count)))
@@ -223,6 +226,9 @@ namespace Game
                             break;
                         case '6':
                             gameObjects.Add(new Gem(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            break;
+                        case '7':
+                            gameObjects.Add(new Key(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
                             break;
                     }
                 }
