@@ -24,8 +24,8 @@ namespace Game
         private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
 
         public delegate void Notify();
-
         public event Notify OutOfCommands;
+        public event Notify ExecutingNextCommand;
 
         private Player player;
         private Queue<char> commands = new Queue<char>();
@@ -53,6 +53,7 @@ namespace Game
             if (!commands.IsEmpty && gameObjects.All(g => g.IsStandingStill()))
             {
                 player.LoadNextCommand(commands.Dequeue());
+                ExecutingNextCommand.Invoke();
                 if (commands.IsEmpty)
                 {
                     OutOfCommands.Invoke();
@@ -72,10 +73,6 @@ namespace Game
         {
             for (int i = gameObjects.Count - 1; i >= 0; --i)
             {
-                if (gameObjects[i] is Player)
-                {
-
-                }
                 MoveGameObject(gameObjects[i]);
             }
         }
@@ -93,7 +90,6 @@ namespace Game
 
         private Vector2 RestrictVelocity(GameObject gameObject, Vector2 wantedVelocity, bool anotherPass = true)
         {
-
             RayCollisionInfo firstCollision;
             GameObject collidedGameObject;
             (firstCollision, collidedGameObject) = FindCollision(gameObject, wantedVelocity);

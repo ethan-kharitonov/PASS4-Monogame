@@ -86,7 +86,8 @@ namespace Game
         public static readonly InputMenu Instance = new InputMenu();
 
         private string input = string.Empty;
-        private string inputMessage = "";
+        private string inputMessage = string.Empty;
+        private string commandArrow = string.Empty;
 
         private SpriteFont inputFont;
 
@@ -178,6 +179,7 @@ namespace Game
                         {
                             CommandReadingComplete.Invoke(commands);
                         }
+                        input += "|";
                         stage = Stage.Waiting;
                     }
                     catch (Exception e)
@@ -269,9 +271,9 @@ namespace Game
         public void Draw()
         {
             screen.Draw(Helper.GetRectTexture(MainGame.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, MainGame.WIDTH, HEIGHT));
-            screen.DrawText(inputFont, input, new Vector2(5, 5), Color.White);
-            screen.DrawText(inputFont, "Status: ", new Vector2(5, 30), Color.White);
-            screen.DrawText(inputFont, inputMessage, new Vector2(inputFont.MeasureString("Status:x").X, 30), Color.White);
+            screen.DrawText(inputFont, "Command: " + input, new Vector2(10, 10), Color.White);
+            screen.DrawText(inputFont, "Action       : " + commandArrow, new Vector2(10, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
+            screen.DrawText(inputFont, "Status: " + inputMessage, new Vector2(10, 10 + 3 * inputFont.MeasureString("S").Y + 5), Color.White);
         }
 
         public int GetMaxX() => screen.GetMaxX();
@@ -291,6 +293,21 @@ namespace Game
             keysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
 
             keysPressedLastFrame = keysPressedThisFrame;
+        }
+
+        public void ShowNextCommand()
+        {
+            if(commandArrow.Length == 0)
+            {
+                commandArrow = "V";
+            }
+            else
+            {
+                commandArrow = commandArrow.Substring(0, commandArrow.Length - 1) + " V";
+                float x = inputFont.MeasureString(" ").X;
+                float y = inputFont.MeasureString("F").X;
+
+            }
         }
     }
 }

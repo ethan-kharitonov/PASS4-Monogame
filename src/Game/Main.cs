@@ -46,6 +46,8 @@ namespace Game
             MainGame.Instance.OutOfCommands += () => InputMenu.Instance.StartInputProcess();
             InputMenu.Instance.CommandReadingComplete += q => MainGame.Instance.LoadCommands(q);
 
+            MainGame.Instance.ExecutingNextCommand += () => InputMenu.Instance.ShowNextCommand();
+
             foreach (ISection section in sections)
             {
                 section.LoadContent();
