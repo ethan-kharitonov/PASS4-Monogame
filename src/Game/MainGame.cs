@@ -143,11 +143,6 @@ namespace Game
 
             if (firstCollision.Sides.Count != 0)
             {
-                if (gameObject is Player && firstCollision.Sides.Count() == 2)
-                {
-
-                }
-
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides.Select(s => s.Flip()));
@@ -196,14 +191,6 @@ namespace Game
                 {
                     curCollision = Helper.RayBoxFirstCollision(new Line(rayStartPoint, rayStartPoint + wantedVelocity), otherGameObject.Box);
 
-                    /*if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left ||
-                        curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right ||
-                        curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top ||
-                        curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
-                    {
-                        continue;
-                    }*/
-
                     if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left)
                     {
                         curCollision.Sides.Remove(Side.Left);
@@ -228,10 +215,6 @@ namespace Game
                     if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length()
                         || (curCollision.Distance.Length() == firstCollision.Distance.Length() && curCollision.Sides.Count < firstCollision.Sides.Count)))
                     {
-                        if(curCollision.Sides.Count() == 2)
-                        {
-
-                        }
                         collidedGameObject = otherGameObject;
                         firstCollision = curCollision;
                     }

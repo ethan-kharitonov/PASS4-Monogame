@@ -88,13 +88,14 @@ namespace Game
         private string input = string.Empty;
         private string inputMessage = "";
 
-        private List<Keys> keysPressedLastFrame = new List<Keys>();
         private SpriteFont inputFont;
+
+        private List<Keys> keysPressedLastFrame = new List<Keys>();
+        private List<Keys> keysReleasedThisFrame = new List<Keys>();
 
         private const int HEIGHT = 150;
 
         public delegate void TakeCommands(Queue<char> commands);
-
         public event TakeCommands CommandReadingComplete;
 
         private bool inputFailed = false;
@@ -113,61 +114,59 @@ namespace Game
 
         public void Update()
         {
+            GetReleasedKeys();
+
             switch (stage)
             {
                 case Stage.Input:
-                    Keys[] newKeys = Keyboard.GetState().GetPressedKeys();
-                    keysPressedLastFrame = newKeys.Union(keysPressedLastFrame).ToList();
-
-                    for (int i = 0; i < keysPressedLastFrame.Count; i++)
+                    for (int i = 0; i < keysReleasedThisFrame.Count; i++)
                     {
-                        Keys key = keysPressedLastFrame[i];
-                        if (!Keyboard.GetState().IsKeyDown(key))
+                        Keys key = keysReleasedThisFrame[i];
+                        keysPressedLastFrame.Remove(key);
+                        if (key == Keys.Back)
                         {
-                            keysPressedLastFrame.Remove(key);
-                            if (key == Keys.Back)
+                            if (input.Count() == 0)
                             {
-                                if (input.Count() == 0)
-                                {
-                                    continue;
-                                }
+                                continue;
+                            }
 
-                                input = input.Substring(0, input.Count() - 1);
-                            }
-                            else if (key == Keys.OemPlus)
+                            input = input.Substring(0, input.Count() - 1);
+                        }
+                        else if (key == Keys.OemPlus)
+                        {
+                            input += "+";
+                        }
+                        else if (key == Keys.OemMinus)
+                        {
+                            input += "-";
+                        }
+                        else if (key == Keys.Enter)
+                        {
+                            stage = Stage.Proccessing;
+                        }
+                        else
+                        {
+                            if (key.ToString().Count() > 1)
                             {
-                                input += "+";
-                            }
-                            else if (key == Keys.OemMinus)
-                            {
-                                input += "-";
-                            }
-                            else if (key == Keys.Enter)
-                            {
-                                stage = Stage.Proccessing;
-                            }
-                            else
-                            {
-                                if (key.ToString().Count() > 1)
+                                int num = Convert.ToInt32(key.ToString()[1]) - '0';
+                                if (0 < num && num < 10)
                                 {
-                                    int num = Convert.ToInt32(key.ToString()[1]) - '0';
-                                    if (0 < num && num < 10)
-                                    {
-                                        input += key.ToString()[1];
-                                    }
-                                    continue;
+                                    input += key.ToString()[1];
                                 }
-
-                                input += key.ToString();
+                                continue;
                             }
+
+                            input += key.ToString();
                         }
                     }
                     break;
                 case Stage.Proccessing:
-                    if (inputFailed && Keyboard.GetState().IsKeyDown(Keys.Enter))
+                    if (inputFailed && keysReleasedThisFrame.Contains(Keys.Enter))
                     {
+                        keysPressedLastFrame.Remove(Keys.Enter);
                         StartInputProcess();
                         inputFailed = false;
+                        break;
                     }
 
                     try
@@ -206,6 +205,11 @@ namespace Game
                         throw new FormatException("Loops must start with 'S'");
                     }
 
+                    if(i == loopInfo.StartIndex)
+                    {
+                        throw new FormatException("Loops cannot be empty");
+                    }
+
                     if (loopInfo.DecrementNumIterations())
                     {
                         i = loopInfo.StartIndex - 1;
@@ -213,10 +217,17 @@ namespace Game
                 }
                 else if (input[i] == 'S')
                 {
-                    int num = Convert.ToInt32(input[i + 1]) - '0';
-                    if (num < 0 || num > 9)
+                    if (i < input.Length - 1)
                     {
-                        throw new FormatException("All loop starts (S) must be followed with a digit (1 - 9).");
+                        int num = Convert.ToInt32(input[i + 1]) - '0';
+                        if (num < 0 || num > 9)
+                        {
+                            throw new FormatException("All loop starts (S) must be followed with a digit (1 - 9)");
+                        }
+                    }
+                    else
+                    {
+                        throw new FormatException("All loop starts (S) must be followed with a digit (1 - 9)");
                     }
 
                     loopInfo.StartLoop(i + 2, Convert.ToInt32(input[i + 1]) - '0' - 1);
@@ -235,16 +246,16 @@ namespace Game
                         int lastNum = Convert.ToInt32(input[i - 1]) - '0';
                         if (Helper.IsBetween(1, curNum, 9) && Helper.IsBetween(1, lastNum, 9))
                         {
-                            throw new FormatException("Loops can have a maximum of 9 iterations.");
+                            throw new FormatException("Loops can have a maximum of 9 iterations");
                         }
                     }
-                    throw new FormatException($"{input[i]} is not a valid input charchter.");
+                    throw new FormatException($"{input[i]} is not a valid input charchter");
                 }
             }
 
             if (loopInfo.StartIndex != -1)
             {
-                throw new FormatException("All loops must be closed with an 'F'.");
+                throw new FormatException("All loops must be closed with an 'F'");
             }
 
             if (commands.IsEmpty)
@@ -272,6 +283,14 @@ namespace Game
             stage = Stage.Input;
             input = string.Empty;
             inputMessage = string.Empty;
+        }
+
+        private void GetReleasedKeys()
+        {
+            List<Keys> keysPressedThisFrame = Keyboard.GetState().GetPressedKeys().ToList();
+            keysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
+
+            keysPressedLastFrame = keysPressedThisFrame;
         }
     }
 }
