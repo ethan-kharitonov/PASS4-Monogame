@@ -21,7 +21,7 @@ namespace Game
 
         private float gravity = 1;
         private float xSpeed = 2f;
-        private float initalJumpSpeed = -13f;
+        private float initalJumpSpeed = -12f;
 
         private float xTargetPosition;
         private float xTargetVelocity = 0;

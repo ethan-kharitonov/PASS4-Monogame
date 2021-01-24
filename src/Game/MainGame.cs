@@ -181,17 +181,17 @@ namespace Game
                     return RestrictVelocity(gameObject, wantedVelocity);
                 }
 
-                if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
-                {
-                    gameObject.Velocity.Y = 0;
-                    wantedVelocity.Y = firstCollision.Distance.Y;
-                }
-
                 if (firstCollision.Sides.Contains(Side.Left) || firstCollision.Sides.Contains(Side.Right))
                 {
                     gameObject.Velocity.X = 0;
                     wantedVelocity.X = firstCollision.Distance.X;
                 }
+                else if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
+                {
+                    gameObject.Velocity.Y = 0;
+                    wantedVelocity.Y = firstCollision.Distance.Y;
+                }
+
 
                 if (anotherPass)
                 {
@@ -220,6 +220,9 @@ namespace Game
                             break;
                         case '2':
                             gameObjects.Add(new Crate(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            break;
+                        case '4':
+                            gameObjects.Add(new Door(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
                             break;
                         case '5':
                             gameObjects.Add(new Spike(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));

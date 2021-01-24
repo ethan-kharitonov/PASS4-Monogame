@@ -100,12 +100,13 @@ namespace Game
 
         }
 
-        public virtual bool IsStandingStill() => Velocity == Vector2.Zero;
-
-        /*public virtual void ApplyGravity()
+        public virtual void CollideWith(Door key, IEnumerable<Side> sides)
         {
 
-        }*/
+        }
+
+        public virtual bool IsStandingStill() => Velocity == Vector2.Zero;
+
 
     }
 }
