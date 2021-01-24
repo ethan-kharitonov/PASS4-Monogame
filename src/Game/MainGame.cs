@@ -24,12 +24,12 @@ namespace Game
         private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
 
         public delegate void Notify();
-        public event Notify OutOfCommands;
         public event Notify ExecutingNextCommand;
+
+        public event Action<string> RunComplete;
 
         private Player player;
         private Queue<char> commands = new Queue<char>();
-
         private MainGame()
         {
 
@@ -38,14 +38,13 @@ namespace Game
         public void LoadCommands(Queue<char> commands)
         {
             this.commands = commands;
+            /*gameObjects.Clear();
+            LoadLevelFromFile("Level.txt");*/
             commands.Enqueue('X');
         }
         public void LoadContent()
         {
             LoadLevelFromFile("Level.txt");
-
-            gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
-            gameObjects.ForEach(g => g.DeleteReady += gameObject => gameObjects.Remove(gameObject));
         }
 
         public void Update()
@@ -56,7 +55,7 @@ namespace Game
                 ExecutingNextCommand.Invoke();
                 if (commands.IsEmpty)
                 {
-                    OutOfCommands.Invoke();
+                    RunComplete.Invoke("Failed to reach goal");
                 }
             }
             gameObjects.ForEach(g => g.Update());
@@ -154,7 +153,7 @@ namespace Game
                     gameObject.Velocity.X = 0;
                     wantedVelocity.X = firstCollision.Distance.X;
                 }
-                 
+
                 if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
                 {
                     gameObject.Velocity.Y = 0;
@@ -222,6 +221,7 @@ namespace Game
 
         private void LoadLevelFromFile(string path)
         {
+            gameObjects.Clear();
             string[] lines = File.ReadAllLines(path);
             for (int r = 0; r < NUM_CELLS_HEIGHT; ++r)
             {
@@ -254,6 +254,20 @@ namespace Game
                     }
                 }
             }
+
+            gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
+            gameObjects.ForEach(g => g.DeleteReady += gameObject => gameObjects.Remove(gameObject));
+
+            player.HitSpike += () =>
+            {
+                commands = new Queue<char>();
+                RunComplete.Invoke("The player hit a spike");
+            };
+        }
+
+        public void ReStartLevel()
+        {
+            LoadLevelFromFile("Level.txt");
         }
 
         public int GetMaxX() => screen.GetMaxX();

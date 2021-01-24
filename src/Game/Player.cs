@@ -21,7 +21,7 @@ namespace Game
 
         private float gravity = 1;
         private float xSpeed = 2f;
-        private float initalJumpSpeed = -12f;
+        private float initalJumpSpeed = -11.5f;
 
         private float xTargetPosition;
         private float xTargetVelocity = 0;
@@ -29,10 +29,12 @@ namespace Game
         private bool keyCollected = false;
         private bool movingOnY = false;
 
-
         private bool HitWallFromBottom = false;
 
-        public Player(int x, int y) : base(image, x + 1, y, width, height)
+        public delegate void Notify();
+        public event Notify HitSpike;
+
+        public Player(int x, int y) : base(image, x, y, width, height)
         {
             xTargetPosition = TruePosition.X;
         }
@@ -72,6 +74,11 @@ namespace Game
 
         public void LoadNextCommand(char command)
         {
+            if(TruePosition.X % 45 != 0)
+            {
+                TruePosition = new Vector2((float)Math.Round(TruePosition.X / MainGame.CELL_SIDE_LENGTH) * MainGame.CELL_SIDE_LENGTH, TruePosition.Y);
+            }
+
             movingOnY = false;
             isPushing = false;
             xTargetVelocity = 0;
@@ -80,23 +87,23 @@ namespace Game
             {
                 case 'A':
                     Velocity.X = -xSpeed;
-                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = TruePosition.X - MainGame.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case 'D':
                     Velocity.X = xSpeed;
-                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = TruePosition.X + MainGame.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'E':
                     movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = xSpeed;
-                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = TruePosition.X + MainGame.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'Q':
                     movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = -xSpeed;
-                    xTargetPosition = ((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = TruePosition.X - MainGame.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case '+':
                     LoadNextCommand('D');
@@ -147,7 +154,7 @@ namespace Game
 
         public override void CollideWith(Spike spike, IEnumerable<Side> sides)
         {
-            TruePosition = new Vector2(100, 100);
+            HitSpike.Invoke();
         }
 
         public override void CollideWith(Key key, IEnumerable<Side> sides)

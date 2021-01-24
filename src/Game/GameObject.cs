@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Game
 {
@@ -15,10 +13,10 @@ namespace Game
 
         public Vector2 Velocity;
 
-        public delegate void Notify(GameObject gameObject);
+        public delegate void GameObjectEvent(GameObject gameObject);
 
-        public event Notify MoveReady;
-        public event Notify DeleteReady;
+        public event GameObjectEvent MoveReady;
+        public event GameObjectEvent DeleteReady;
 
 
         public GameObject(Texture2D image, int x, int y, int width, int height)

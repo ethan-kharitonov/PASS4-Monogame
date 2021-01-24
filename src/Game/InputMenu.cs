@@ -85,11 +85,13 @@ namespace Game
         private Stage stage = Stage.Input;
         public static readonly InputMenu Instance = new InputMenu();
 
+        private SpriteFont inputFont;
+
         private string input = string.Empty;
         private string inputMessage = string.Empty;
         private string commandArrow = string.Empty;
-
-        private SpriteFont inputFont;
+        private float commandArrowXPosition;
+        private Queue<int> commandOrder = new Queue<int>();
 
         private List<Keys> keysPressedLastFrame = new List<Keys>();
         private List<Keys> keysReleasedThisFrame = new List<Keys>();
@@ -99,11 +101,14 @@ namespace Game
         public delegate void TakeCommands(Queue<char> commands);
         public event TakeCommands CommandReadingComplete;
 
+        public delegate void Notify();
+        public event Notify CommandReadingStarting;
+        
         private bool inputFailed = false;
 
         private InputMenu()
         {
-
+            //commandArrowXPosition = inputFont.MeasureString("Command: ").X;
         }
 
         private Screen screen = new Screen(new Point(0, MainGame.HEIGHT), MainGame.WIDTH, HEIGHT);
@@ -120,6 +125,24 @@ namespace Game
             switch (stage)
             {
                 case Stage.Input:
+                    if (inputFailed)
+                    {
+                        if(keysReleasedThisFrame.Contains(Keys.Enter))
+                        {
+                            keysReleasedThisFrame.Remove(Keys.Enter);
+                            input = string.Empty;
+                            inputMessage = string.Empty;
+                            commandArrow = string.Empty;
+                            inputFailed = false;
+                            CommandReadingStarting.Invoke();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                       
+                    }
+
                     for (int i = 0; i < keysReleasedThisFrame.Count; i++)
                     {
                         Keys key = keysReleasedThisFrame[i];
@@ -162,14 +185,6 @@ namespace Game
                     }
                     break;
                 case Stage.Proccessing:
-                    if (inputFailed && keysReleasedThisFrame.Contains(Keys.Enter))
-                    {
-                        keysPressedLastFrame.Remove(Keys.Enter);
-                        StartInputProcess();
-                        inputFailed = false;
-                        break;
-                    }
-
                     try
                     {
                         Queue<char> commands = ReadPlayerInput(input);
@@ -179,12 +194,14 @@ namespace Game
                         {
                             CommandReadingComplete.Invoke(commands);
                         }
-                        input += "|";
+                        input += "~";
+                        commandOrder.Enqueue(input.Length - 1);
                         stage = Stage.Waiting;
                     }
                     catch (Exception e)
                     {
                         inputMessage = e.Message + " : Please press ENTER to try again.";
+                        stage = Stage.Input;
                         inputFailed = true;
                     }
 
@@ -194,10 +211,11 @@ namespace Game
             }
         }
 
-        public static Queue<char> ReadPlayerInput(string input)
+        public Queue<char> ReadPlayerInput(string input)
         {
             Queue<char> commands = new Queue<char>();
             LoopInfo loopInfo = new LoopInfo();
+            commandOrder = new Queue<int>();
             for (int i = 0; i < input.Length; ++i)
             {
                 if (i < input.Length && input[i] == 'F')
@@ -238,6 +256,7 @@ namespace Game
                 else if (input[i] == 'A' || input[i] == 'C' || input[i] == 'D' || input[i] == 'E' || input[i] == 'Q' || input[i] == '+' || input[i] == '-')
                 {
                     commands.Enqueue(input[i]);
+                    commandOrder.Enqueue(i);
                 }
                 else
                 {
@@ -272,7 +291,10 @@ namespace Game
         {
             screen.Draw(Helper.GetRectTexture(MainGame.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, MainGame.WIDTH, HEIGHT));
             screen.DrawText(inputFont, "Command: " + input, new Vector2(10, 10), Color.White);
-            screen.DrawText(inputFont, "Action       : " + commandArrow, new Vector2(10, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
+
+            screen.DrawText(inputFont, "Action       : ", new Vector2(10, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
+            screen.DrawText(inputFont, commandArrow, new Vector2(commandArrowXPosition, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
+
             screen.DrawText(inputFont, "Status: " + inputMessage, new Vector2(10, 10 + 3 * inputFont.MeasureString("S").Y + 5), Color.White);
         }
 
@@ -280,11 +302,12 @@ namespace Game
 
         public int GetMaxY() => screen.GetMaxY();
 
-        public void StartInputProcess()
+        public void StartInputProcess(string message)
         {
+            inputMessage = message + " : Please press ENTER to try again.";
+            inputFailed = true;
             stage = Stage.Input;
-            input = string.Empty;
-            inputMessage = string.Empty;
+            commandOrder = new Queue<int>();
         }
 
         private void GetReleasedKeys()
@@ -297,17 +320,11 @@ namespace Game
 
         public void ShowNextCommand()
         {
-            if(commandArrow.Length == 0)
+            if(commandArrow == string.Empty)
             {
-                commandArrow = "V";
+                commandArrow = "^";
             }
-            else
-            {
-                commandArrow = commandArrow.Substring(0, commandArrow.Length - 1) + " V";
-                float x = inputFont.MeasureString(" ").X;
-                float y = inputFont.MeasureString("F").X;
-
-            }
+            commandArrowXPosition = inputFont.MeasureString("Command:xx" + input.Substring(0, commandOrder.Dequeue())).X + 3;
         }
     }
 }

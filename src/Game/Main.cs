@@ -43,10 +43,12 @@ namespace Game
             Helper.Content = Content;
             Helper.graphics = graphics;
 
-            MainGame.Instance.OutOfCommands += () => InputMenu.Instance.StartInputProcess();
+            MainGame.Instance.RunComplete += m => InputMenu.Instance.StartInputProcess(m);
             InputMenu.Instance.CommandReadingComplete += q => MainGame.Instance.LoadCommands(q);
 
             MainGame.Instance.ExecutingNextCommand += () => InputMenu.Instance.ShowNextCommand();
+
+            InputMenu.Instance.CommandReadingStarting += () => MainGame.Instance.ReStartLevel();
 
             foreach (ISection section in sections)
             {
