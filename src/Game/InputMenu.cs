@@ -22,7 +22,7 @@ namespace Game
 
             public void StartLoop(int startIndex, int numIterations)
             {
-                if(this.startIndex == -1)
+                if (this.startIndex == -1)
                 {
                     this.startIndex = startIndex;
                     this.numIterations = numIterations;
@@ -45,7 +45,7 @@ namespace Game
 
             public bool DecrementNumIterations()
             {
-                if(nestedLoop != null)
+                if (nestedLoop != null)
                 {
                     if (nestedLoop.DecrementNumIterations())
                     {
@@ -56,7 +56,7 @@ namespace Game
                     return false;
                 }
 
-                if(numIterations == 0)
+                if (numIterations == 0)
                 {
                     Reset();
                     return false;
@@ -97,6 +97,8 @@ namespace Game
 
         public event TakeCommands CommandReadingComplete;
 
+        private bool inputFailed = false;
+
         private InputMenu()
         {
 
@@ -114,7 +116,6 @@ namespace Game
             switch (stage)
             {
                 case Stage.Input:
-                    
                     Keys[] newKeys = Keyboard.GetState().GetPressedKeys();
                     keysPressedLastFrame = newKeys.Union(keysPressedLastFrame).ToList();
 
@@ -132,7 +133,7 @@ namespace Game
                                 }
 
                                 input = input.Substring(0, input.Count() - 1);
-                            } 
+                            }
                             else if (key == Keys.OemPlus)
                             {
                                 input += "+";
@@ -163,7 +164,12 @@ namespace Game
                     }
                     break;
                 case Stage.Proccessing:
-                   
+                    if (inputFailed && Keyboard.GetState().IsKeyDown(Keys.Enter))
+                    {
+                        StartInputProcess();
+                        inputFailed = false;
+                    }
+
                     try
                     {
                         Queue<char> commands = ReadPlayerInput(input);
@@ -177,7 +183,8 @@ namespace Game
                     }
                     catch (Exception e)
                     {
-                        inputMessage = e.Message;
+                        inputMessage = e.Message + " : Please press ENTER to try again.";
+                        inputFailed = true;
                     }
 
                     break;
@@ -226,7 +233,7 @@ namespace Game
 
                         int curNum = Convert.ToInt32(input[i]) - '0';
                         int lastNum = Convert.ToInt32(input[i - 1]) - '0';
-                        if(Helper.IsBetween(1, curNum, 9) && Helper.IsBetween(1, lastNum, 9))
+                        if (Helper.IsBetween(1, curNum, 9) && Helper.IsBetween(1, lastNum, 9))
                         {
                             throw new FormatException("Loops can have a maximum of 9 iterations.");
                         }
@@ -235,7 +242,7 @@ namespace Game
                 }
             }
 
-            if(loopInfo.StartIndex != -1)
+            if (loopInfo.StartIndex != -1)
             {
                 throw new FormatException("All loops must be closed with an 'F'.");
             }

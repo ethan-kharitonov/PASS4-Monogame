@@ -58,7 +58,7 @@ namespace Game
                     OutOfCommands.Invoke();
                 }
             }
-            gameObjects.ForEach(g =>  g.Update());
+            gameObjects.ForEach(g => g.Update());
 
             MoveGameObjects();
         }
@@ -72,7 +72,7 @@ namespace Game
         {
             for (int i = gameObjects.Count - 1; i >= 0; --i)
             {
-                if(gameObjects[i] is Player)
+                if (gameObjects[i] is Player)
                 {
 
                 }
@@ -93,38 +93,10 @@ namespace Game
 
         private Vector2 RestrictVelocity(GameObject gameObject, Vector2 wantedVelocity, bool anotherPass = true)
         {
-            RayCollisionInfo firstCollision = new RayCollisionInfo();
-            RayCollisionInfo curCollision;
 
-            GameObject collidedGameObject = null;
-
-            foreach (GameObject otherGameObject in gameObjects)
-            {
-                if (gameObject == otherGameObject)
-                {
-                    continue;
-                }
-
-                foreach (Vector2 rayStartPoint in Helper.GetVertecies(gameObject.Box))
-                {
-                    curCollision = Helper.RayBoxFirstCollision(new Line(rayStartPoint, rayStartPoint + wantedVelocity), otherGameObject.Box);
-
-                    if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left ||
-                        curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right ||
-                        curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top ||
-                        curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
-                    { 
-                        continue; 
-                    }
-
-                    if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length()
-                        || (curCollision.Distance.Length() == firstCollision.Distance.Length() && curCollision.Sides.Count < firstCollision.Sides.Count)))
-                    {
-                        collidedGameObject = otherGameObject;
-                        firstCollision = curCollision;
-                    }
-                }
-            }
+            RayCollisionInfo firstCollision;
+            GameObject collidedGameObject;
+            (firstCollision, collidedGameObject) = FindCollision(gameObject, wantedVelocity);
 
             if (firstCollision.Sides.Count == 0)
             {
@@ -171,6 +143,11 @@ namespace Game
 
             if (firstCollision.Sides.Count != 0)
             {
+                if (gameObject is Player && firstCollision.Sides.Count() == 2)
+                {
+
+                }
+
                 Rectangle collidedObjectBox = collidedGameObject.Box;
 
                 collidedGameObject.InformCollisionTo(gameObject, firstCollision.Sides.Select(s => s.Flip()));
@@ -186,7 +163,8 @@ namespace Game
                     gameObject.Velocity.X = 0;
                     wantedVelocity.X = firstCollision.Distance.X;
                 }
-                else if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
+                 
+                if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
                 {
                     gameObject.Velocity.Y = 0;
                     wantedVelocity.Y = firstCollision.Distance.Y;
@@ -200,6 +178,67 @@ namespace Game
             }
 
             return wantedVelocity;
+        }
+
+        private (RayCollisionInfo, GameObject collidedGameObject) FindCollision(GameObject gameObject, Vector2 wantedVelocity)
+        {
+            GameObject collidedGameObject = null;
+            RayCollisionInfo firstCollision = new RayCollisionInfo();
+            RayCollisionInfo curCollision;
+            foreach (GameObject otherGameObject in gameObjects)
+            {
+                if (gameObject == otherGameObject)
+                {
+                    continue;
+                }
+
+                foreach (Vector2 rayStartPoint in Helper.GetVertecies(gameObject.Box))
+                {
+                    curCollision = Helper.RayBoxFirstCollision(new Line(rayStartPoint, rayStartPoint + wantedVelocity), otherGameObject.Box);
+
+                    /*if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left ||
+                        curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right ||
+                        curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top ||
+                        curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
+                    {
+                        continue;
+                    }*/
+
+                    if (curCollision.Sides.Contains(Side.Left) && rayStartPoint.X == gameObject.Box.Left)
+                    {
+                        curCollision.Sides.Remove(Side.Left);
+                    }
+
+                    if (curCollision.Sides.Contains(Side.Right) && rayStartPoint.X == gameObject.Box.Right)
+                    {
+                        curCollision.Sides.Remove(Side.Right);
+                    }
+
+                    if (curCollision.Sides.Contains(Side.Top) && rayStartPoint.Y == gameObject.Box.Top)
+                    {
+                        curCollision.Sides.Remove(Side.Top);
+                    }
+
+                    if (curCollision.Sides.Contains(Side.Bottom) && rayStartPoint.Y == gameObject.Box.Bottom)
+                    {
+                        curCollision.Sides.Remove(Side.Bottom);
+                    }
+
+
+                    if (curCollision.Sides.Count != 0 && (firstCollision.Sides.Count == 0 || curCollision.Distance.Length() < firstCollision.Distance.Length()
+                        || (curCollision.Distance.Length() == firstCollision.Distance.Length() && curCollision.Sides.Count < firstCollision.Sides.Count)))
+                    {
+                        if(curCollision.Sides.Count() == 2)
+                        {
+
+                        }
+                        collidedGameObject = otherGameObject;
+                        firstCollision = curCollision;
+                    }
+                }
+            }
+
+            return (firstCollision, collidedGameObject);
         }
 
         private void LoadLevelFromFile(string path)

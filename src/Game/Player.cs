@@ -14,7 +14,7 @@ namespace Game
 
         //private static readonly float imgScaleFactor = 0.06f;
         private static readonly int height = 45;// (int)Math.Round(image.Height * imgScaleFactor);
-        private static readonly int width = height * image.Width/image.Height;// (int)Math.Round(image.Width * imgScaleFactor);
+        private static readonly int width = 45;// height * image.Width/image.Height;// (int)Math.Round(image.Width * imgScaleFactor);
 
         private bool onGround = true;
         private bool isPushing = false;
@@ -154,6 +154,15 @@ namespace Game
         {
             keyCollected = true;
         }
+
+        public override void CollideWith(Door door, IEnumerable<Side> sides)
+        {
+            if (keyCollected)
+            {
+                door.WalkThrough();
+            }
+        }
+
 
         public override bool IsStandingStill()
         {

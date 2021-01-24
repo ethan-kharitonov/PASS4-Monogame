@@ -16,5 +16,7 @@ namespace Game
         {
             otherGameObject.CollideWith(this, sides);
         }
+
+        public void WalkThrough() => InvokeDeleteReady();
     }
 }
