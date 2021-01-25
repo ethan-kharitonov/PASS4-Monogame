@@ -32,7 +32,7 @@ namespace Game
         private bool HitWallFromBottom = false;
 
         private int gemCount = 0;
-        private bool collectingGem = false;
+        private Gem lastCollidedGem = null;
 
         public delegate void Notify();
         public event Notify HitSpike;
@@ -84,7 +84,6 @@ namespace Game
 
             movingOnY = false;
             isPushing = false;
-            collectingGem = false;
             xTargetVelocity = 0;
 
             switch (command)
@@ -118,9 +117,16 @@ namespace Game
                     isPushing = true;
                     break;
                 case 'C':
-                    collectingGem = true;
+                    if (lastCollidedGem != null)
+                    {
+                        ++gemCount;
+                        InvokeDeleteReady(lastCollidedGem);
+                    }
                     break;
             }
+
+            lastCollidedGem = null;
+
         }
 
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
@@ -156,8 +162,7 @@ namespace Game
 
         public override void CollideWith(Gem gem, IEnumerable<Side> sides)
         {
-            ++gemCount;
-            InvokeDeleteReady(gem);
+            lastCollidedGem = gem;
         }
 
         public override void CollideWith(Spike spike, IEnumerable<Side> sides)

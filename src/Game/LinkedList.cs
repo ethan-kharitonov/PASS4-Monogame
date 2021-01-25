@@ -25,6 +25,7 @@ namespace Game
         }
 
         private Node head;
+        public T Head => head != null ? head.Data : throw new NullReferenceException("Head was null");
 
         public bool IsEmpty => head == null;
         private int count = 0;

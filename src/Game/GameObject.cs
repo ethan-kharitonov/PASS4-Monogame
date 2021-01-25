@@ -19,6 +19,10 @@ namespace Game
         public event GameObjectEvent MoveReady;
         public event GameObjectEvent DeleteReady;
 
+        protected bool isCollidable = true;
+        public bool IsCollidable => isCollidable;
+
+
 
         public GameObject(Texture2D image, int x, int y, int width, int height)
         {

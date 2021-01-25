@@ -52,13 +52,7 @@ namespace Game
             flagImg = Helper.LoadImage("Images/flagImg");
             LoadLevelFromFile("Level.txt");
 
-            gameObjects.AddRange(new[]
-            {
-                new Wall(-SCREEN_WALL_WIDTH, 0, SCREEN_WALL_WIDTH, HEIGHT),
-                new Wall(WIDTH, 0, SCREEN_WALL_WIDTH, HEIGHT),
-                new Wall(0, -SCREEN_WALL_WIDTH, WIDTH, SCREEN_WALL_WIDTH),
-                new Wall(0, HEIGHT, WIDTH, SCREEN_WALL_WIDTH)
-            });
+            
         }
 
         public void Update()
@@ -166,6 +160,11 @@ namespace Game
                 if (!gameObjects.Contains(collidedGameObject) || collidedGameObject.Box != collidedObjectBox)
                 {
                     return RestrictVelocity(gameObject, wantedVelocity);
+                }
+
+                if (!collidedGameObject.IsCollidable)
+                {
+                    return wantedVelocity;
                 }
 
                 if (firstCollision.Sides.Contains(Side.Left) || firstCollision.Sides.Contains(Side.Right))
@@ -277,6 +276,14 @@ namespace Game
                     }
                 }
             }
+
+            gameObjects.AddRange(new[]
+            {
+                new Wall(-SCREEN_WALL_WIDTH, 0, SCREEN_WALL_WIDTH, HEIGHT),
+                new Wall(WIDTH, 0, SCREEN_WALL_WIDTH, HEIGHT),
+                new Wall(0, -SCREEN_WALL_WIDTH, WIDTH, SCREEN_WALL_WIDTH),
+                new Wall(0, HEIGHT, WIDTH, SCREEN_WALL_WIDTH)
+            });
 
             gameObjects.ForEach(g => g.MoveReady += gameObject => MoveGameObject(gameObject));
             gameObjects.ForEach(g => g.DeleteReady += gameObject => gameObjects.Remove(gameObject));

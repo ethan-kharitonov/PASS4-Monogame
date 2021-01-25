@@ -15,6 +15,8 @@ namespace Game
 
         public T Dequeue() => items.RemoveFromHead();
 
+        public T Peek => items.Head;
+
         public override string ToString()
         {
             return items.ToString();
