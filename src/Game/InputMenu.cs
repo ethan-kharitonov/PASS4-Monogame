@@ -92,6 +92,9 @@ namespace Game
         private string commandArrow = string.Empty;
         private float commandArrowXPosition;
         private Queue<int> commandOrder = new Queue<int>();
+        private int curCommandNumber = 0;
+
+        private Bar progressBar;
 
         private List<Keys> keysPressedLastFrame = new List<Keys>();
         private List<Keys> keysReleasedThisFrame = new List<Keys>();
@@ -106,9 +109,11 @@ namespace Game
         
         private bool inputFailed = false;
 
+        private bool showLegend = false;
+        public bool ShowLegend => showLegend;
+
         private InputMenu()
         {
-            //commandArrowXPosition = inputFont.MeasureString("Command: ").X;
         }
 
         private Screen screen = new Screen(new Point(0, MainGame.HEIGHT), MainGame.WIDTH, HEIGHT);
@@ -116,6 +121,7 @@ namespace Game
         public void LoadContent()
         {
             inputFont = Helper.Content.Load<SpriteFont>("Fonts/InputFont");
+            progressBar = new Bar(new Rectangle(10, 90, 200, 30));
         }
 
         public void Update()
@@ -125,6 +131,13 @@ namespace Game
             switch (stage)
             {
                 case Stage.Input:
+
+                    if (keysReleasedThisFrame.Contains(Keys.L))
+                    {
+                        keysReleasedThisFrame.Remove(Keys.L);
+                        showLegend = !showLegend;
+                    }
+
                     if (inputFailed)
                     {
                         if(keysReleasedThisFrame.Contains(Keys.Enter))
@@ -195,6 +208,7 @@ namespace Game
                             CommandReadingComplete.Invoke(commands);
                         }
                         input += "~";
+                        progressBar.FullAmount = commandOrder.Count;
                         commandOrder.Enqueue(input.Length - 1);
                         stage = Stage.Waiting;
                     }
@@ -296,6 +310,8 @@ namespace Game
             screen.DrawText(inputFont, commandArrow, new Vector2(commandArrowXPosition, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
 
             screen.DrawText(inputFont, "Status: " + inputMessage, new Vector2(10, 10 + 3 * inputFont.MeasureString("S").Y + 5), Color.White);
+
+            progressBar.Draw(screen);
         }
 
         public int GetMaxX() => screen.GetMaxX();
@@ -324,6 +340,10 @@ namespace Game
             {
                 commandArrow = "^";
             }
+
+            ++curCommandNumber;
+            progressBar.Update(curCommandNumber);
+
             commandArrowXPosition = inputFont.MeasureString("Command:xx" + input.Substring(0, commandOrder.Dequeue())).X + 3;
         }
     }

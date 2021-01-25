@@ -13,6 +13,8 @@ namespace Game
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
+        private Texture2D legend;
+
         private ISection[] sections = new ISection[]
         {
             MainGame.Instance,
@@ -54,6 +56,9 @@ namespace Game
             {
                 section.LoadContent();
             }
+
+
+            legend = Helper.LoadImage("Images/command legend ethan");
         }
 
         protected override void Update(GameTime gameTime)
@@ -78,6 +83,11 @@ namespace Game
             foreach (ISection section in sections)
             {
                 section.Draw();
+            }
+
+            if (InputMenu.Instance.ShowLegend)
+            {
+                spriteBatch.Draw(legend, Vector2.Zero, Color.White);
             }
 
             spriteBatch.End();

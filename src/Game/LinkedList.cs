@@ -27,7 +27,7 @@ namespace Game
         private Node head;
 
         public bool IsEmpty => head == null;
-
+        private int count = 0;
         public void AddToTail(T data)
         {
             if (head == null) 
@@ -36,9 +36,9 @@ namespace Game
             }
             else
             {
-
                 QueryNode(n => n.Next == null).Next = new Node(data);
             }
+            ++count;
         }
 
         public void RemoveFromTail(T data)
@@ -49,6 +49,7 @@ namespace Game
             }
 
             QueryNode(n => n.Next == null).Next = null;
+            --count;
         }
 
         public T RemoveFromHead()
@@ -61,6 +62,7 @@ namespace Game
             T data = head.Data;
             head = head.Next;
 
+            --count;
             return data;
         }
 
@@ -103,5 +105,7 @@ namespace Game
 
             return output;
         }
+
+        public int Count => count;
     }
 }

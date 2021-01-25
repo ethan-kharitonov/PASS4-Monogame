@@ -25,14 +25,6 @@ namespace Game
         public void Draw(Texture2D image, Rectangle box)
         {
             box.Location += origin;
-
-            foreach(Vector2 vertex in Helper.GetVertecies(box))
-            {
-                if(!Helper.IsPointInOrOnRectangle(vertex, new Rectangle(origin, new Point(width, height))))
-                {
-                    return;
-                }
-            }
             spriteBatch.Draw(image, box, Color.White);
         }
 

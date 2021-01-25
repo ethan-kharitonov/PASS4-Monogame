@@ -38,10 +38,5 @@ namespace Game
         {
             otherGameObject.CollideWith(this, sides);
         }
-
-        public override void CollideWith(Player player, IEnumerable<Side> sides)
-        {
-            InvokeDeleteReady();
-        }
     }
 }

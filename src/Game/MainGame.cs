@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,12 @@ namespace Game
         public static readonly MainGame Instance = new MainGame();
 
         private List<GameObject> gameObjects = new List<GameObject>();
+        private Player player;
+
+        private Point flagPos;
+        private Texture2D flagImg;
+
+        private const int SCREEN_WALL_WIDTH = 3;
 
         private const int NUM_CELLS_WIDTH = 20;
         private const int NUM_CELLS_HEIGHT = 9;
@@ -28,7 +35,7 @@ namespace Game
 
         public event Action<string> RunComplete;
 
-        private Player player;
+
         private Queue<char> commands = new Queue<char>();
         private MainGame()
         {
@@ -38,13 +45,20 @@ namespace Game
         public void LoadCommands(Queue<char> commands)
         {
             this.commands = commands;
-            /*gameObjects.Clear();
-            LoadLevelFromFile("Level.txt");*/
             commands.Enqueue('X');
         }
         public void LoadContent()
         {
+            flagImg = Helper.LoadImage("Images/flagImg");
             LoadLevelFromFile("Level.txt");
+
+            gameObjects.AddRange(new[]
+            {
+                new Wall(-SCREEN_WALL_WIDTH, 0, SCREEN_WALL_WIDTH, HEIGHT),
+                new Wall(WIDTH, 0, SCREEN_WALL_WIDTH, HEIGHT),
+                new Wall(0, -SCREEN_WALL_WIDTH, WIDTH, SCREEN_WALL_WIDTH),
+                new Wall(0, HEIGHT, WIDTH, SCREEN_WALL_WIDTH)
+            });
         }
 
         public void Update()
@@ -55,7 +69,14 @@ namespace Game
                 ExecutingNextCommand.Invoke();
                 if (commands.IsEmpty)
                 {
-                    RunComplete.Invoke("Failed to reach goal");
+                    if (player.Box.Location == flagPos)
+                    {
+                        RunComplete.Invoke("Success! You've reached the goal");
+                    }
+                    else
+                    {
+                        RunComplete.Invoke("Failed to reach goal");
+                    }
                 }
             }
             gameObjects.ForEach(g => g.Update());
@@ -66,6 +87,7 @@ namespace Game
         public void Draw()
         {
             gameObjects.ForEach(g => g.Draw(screen));
+            screen.Draw(flagImg, new Rectangle(flagPos.X + 17, flagPos.Y, (int)Math.Round((double)(flagImg.Width * CELL_SIDE_LENGTH / flagImg.Height)), CELL_SIDE_LENGTH));
         }
 
         private void MoveGameObjects()
@@ -82,9 +104,7 @@ namespace Game
             {
                 return;
             }
-
-            Vector2 possibleVelocity = RestrictVelocity(gameObject, gameObject.Velocity);
-            gameObject.Move(possibleVelocity);
+            gameObject.Move(RestrictVelocity(gameObject, gameObject.Velocity));
         }
 
         private Vector2 RestrictVelocity(GameObject gameObject, Vector2 wantedVelocity, bool anotherPass = true)
@@ -238,6 +258,9 @@ namespace Game
                             break;
                         case '2':
                             gameObjects.Add(new Crate(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            break;
+                        case '3':
+                            flagPos = new Point(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH);
                             break;
                         case '4':
                             gameObjects.Add(new Door(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));

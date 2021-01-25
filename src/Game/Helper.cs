@@ -18,7 +18,10 @@ namespace Game
         private static Texture2D rect;
         private static Color[] data;
 
-        public static float GetRandomBetween(float a, float b) 
+        private static RayCollisionInfo[] results = new RayCollisionInfo[4];
+        private static (Vector2 intersection, bool isIntersecting) lineLineCollisionResult;
+
+        public static float GetRandomBetween(float a, float b)
             => (float)(Math.Min(a, b) + rnd.NextDouble() * Math.Abs(a - b));
 
         public static Texture2D LoadImage(string path)
@@ -91,10 +94,6 @@ namespace Game
 
         public static RayCollisionInfo RayBoxFirstCollision(Line ray, Rectangle box)
         {
-            RayCollisionInfo[] results = new RayCollisionInfo[4];
-
-            (Vector2 intersection, bool isIntersecting) lineLineCollisionResult;
-
             lineLineCollisionResult = LineIntersectsWithHorizontal(ray, new Line(new Vector2(box.Left, box.Top), new Vector2(box.Right, box.Top)));
             results[0] = new RayCollisionInfo(lineLineCollisionResult.intersection, lineLineCollisionResult.intersection - ray.Start, Side.Top, lineLineCollisionResult.isIntersecting);
 
@@ -133,7 +132,7 @@ namespace Game
                 }
 
 
-                if((ray.IsVertical && (ray.Start.X == box.Left || ray.Start.X == box.Right)) ||
+                if ((ray.IsVertical && (ray.Start.X == box.Left || ray.Start.X == box.Right)) ||
                     ray.Slope == 0 && (ray.Start.Y == box.Top || ray.Start.Y == box.Bottom))
                 {
                     return new RayCollisionInfo(false);
@@ -186,8 +185,11 @@ namespace Game
             }
         }
 
-        public static bool IsPointInOrOnRectangle(Vector2 point, Rectangle box) 
+        public static bool IsPointInOrOnRectangle(Vector2 point, Rectangle box)
             => IsBetween(box.Left, point.X, box.Right) && IsBetween(box.Top, point.Y, box.Bottom);
+
+        public static float Clamp(float min, float value, float max)
+            => Math.Max(Math.Min(min, max), Math.Min(value, Math.Max(min, max)));
 
     }
 }

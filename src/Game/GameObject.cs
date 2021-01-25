@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace Game
@@ -27,6 +28,13 @@ namespace Game
             box = new Rectangle(x, y, width, height);
         }
 
+        public GameObject(int x, int y, int width, int height)
+        {
+            TruePosition = new Vector2(x, y);
+
+            box = new Rectangle(x, y, width, height);
+        }
+
         public Vector2 TruePosition
         {
             get => truePosition;
@@ -40,6 +48,8 @@ namespace Game
 
         public Rectangle Box => box;
 
+
+
         public void Move(float x, float y) => TruePosition = new Vector2(TruePosition.X + x, truePosition.Y + y);
 
         public void Move(Vector2 delta) => Move(delta.X, delta.Y);
@@ -51,8 +61,15 @@ namespace Game
 
         public virtual void Draw(Screen screen)
         {
+            if(image == null)
+            {
+                return;
+            }
+
             screen.Draw(image, box);
         }
+
+        
 
         protected void InvokeMoveReady(Vector2 delta)
         {
@@ -65,6 +82,8 @@ namespace Game
         }
 
         protected void InvokeDeleteReady() => DeleteReady?.Invoke(this);
+        protected void InvokeDeleteReady(GameObject gameObject) => DeleteReady?.Invoke(gameObject);
+
 
         public abstract void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides);
 
@@ -83,7 +102,7 @@ namespace Game
 
         }
 
-        public virtual void CollideWith(Gem crate, IEnumerable<Side> sides)
+        public virtual void CollideWith(Gem gem, IEnumerable<Side> sides)
         {
 
         }

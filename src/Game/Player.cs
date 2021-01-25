@@ -19,8 +19,8 @@ namespace Game
         private bool onGround = true;
         private bool isPushing = false;
 
-        private float gravity = 1;
-        private float xSpeed = 2f;
+        private float gravity = 1f;
+        private float xSpeed = 3f;
         private float initalJumpSpeed = -11.5f;
 
         private float xTargetPosition;
@@ -30,6 +30,9 @@ namespace Game
         private bool movingOnY = false;
 
         private bool HitWallFromBottom = false;
+
+        private int gemCount = 0;
+        private bool collectingGem = false;
 
         public delegate void Notify();
         public event Notify HitSpike;
@@ -81,6 +84,7 @@ namespace Game
 
             movingOnY = false;
             isPushing = false;
+            collectingGem = false;
             xTargetVelocity = 0;
 
             switch (command)
@@ -112,6 +116,9 @@ namespace Game
                 case '-':
                     LoadNextCommand('A');
                     isPushing = true;
+                    break;
+                case 'C':
+                    collectingGem = true;
                     break;
             }
         }
@@ -147,9 +154,10 @@ namespace Game
             }
         }
 
-        public override void CollideWith(Gem crate, IEnumerable<Side> sides)
+        public override void CollideWith(Gem gem, IEnumerable<Side> sides)
         {
-            base.CollideWith(crate, sides);
+            ++gemCount;
+            InvokeDeleteReady(gem);
         }
 
         public override void CollideWith(Spike spike, IEnumerable<Side> sides)
@@ -169,7 +177,6 @@ namespace Game
                 door.WalkThrough();
             }
         }
-
 
         public override bool IsStandingStill()
         {

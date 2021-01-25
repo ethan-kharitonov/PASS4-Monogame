@@ -38,11 +38,11 @@ namespace Game
 
             if(sides.Contains(Side.Right))
             {
-                InvokeMoveReady(new Vector2(1, 0));
+                InvokeMoveReady(new Vector2(3, 0));
             }
             else if (sides.Contains(Side.Left))
             {
-                InvokeMoveReady(new Vector2(-1, 0));
+                InvokeMoveReady(new Vector2(-3, 0));
             }
 
             Rectangle slightlyLowerBox = Box;
@@ -70,5 +70,10 @@ namespace Game
         public void StepOnto(Crate crate) => cratesAbove.Add(crate);
 
         public void StepOff(Crate crate) => cratesAbove.Remove(crate);
+
+        /*public override bool IsStandingStill()
+        {
+            return base.IsStandingStill();
+        }*/
     }
 }

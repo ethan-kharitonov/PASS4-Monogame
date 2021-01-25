@@ -7,9 +7,13 @@ namespace Game
 {
     class Wall : GameObject
     {
-        private static readonly new Texture2D image = Helper.LoadImage("Images/Wall");
+        private static readonly Texture2D image = Helper.LoadImage("Images/Wall");
 
         public Wall(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
+        {
+        }
+
+        public Wall(int x, int y, int width, int height) : base(x, y, width, height)
         {
         }
 
