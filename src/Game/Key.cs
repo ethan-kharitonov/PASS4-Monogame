@@ -14,18 +14,14 @@ namespace Game
         private static readonly int width = (int)Math.Round(image.Width * imgScaleFactor);
         private static readonly int height = (int)Math.Round(image.Height * imgScaleFactor);
 
-        public Key(int x, int y) : base(image, x + MainGame.CELL_SIDE_LENGTH/2 - width/2, y + MainGame.CELL_SIDE_LENGTH/2 - height/2, width, height)
+        public Key(int x, int y) : base(image, x + GameView.CELL_SIDE_LENGTH/2 - width/2, y + GameView.CELL_SIDE_LENGTH/2 - height/2, width, height)
         {
+            isCollidable = false;
         }
 
         public override void InformCollisionTo(GameObject otherGameObject, IEnumerable<Side> sides)
         {
             otherGameObject.CollideWith(this, sides);
-        }
-
-        public override void CollideWith(Player player, IEnumerable<Side> sides)
-        {
-            InvokeDeleteReady();
         }
     }
 }

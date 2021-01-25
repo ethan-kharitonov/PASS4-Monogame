@@ -15,7 +15,7 @@ namespace Game
         private HashSet<Crate> cratesAbove = new HashSet<Crate>();
         private HashSet<Crate> cratesBelow = new HashSet<Crate>();
 
-        public Crate(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
+        public Crate(int x, int y) : base(image, x, y, GameView.CELL_SIDE_LENGTH, GameView.CELL_SIDE_LENGTH)
         {
         }
 

@@ -12,7 +12,7 @@ namespace Game
         public static readonly Random rnd = new Random();
 
         public static ContentManager Content;
-
+        public static SpriteBatch SpriteBatch;
         public static GraphicsDeviceManager graphics;
 
         private static Texture2D rect;

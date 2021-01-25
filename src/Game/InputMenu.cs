@@ -106,22 +106,46 @@ namespace Game
 
         public delegate void Notify();
         public event Notify CommandReadingStarting;
-        
+
         private bool inputFailed = false;
 
         private bool showLegend = false;
         public bool ShowLegend => showLegend;
 
+        private string numKeysDisplay;
+        private string numGemsDisplay;
+
+        private bool lastLevelComplete = false;
+
+        public event Action PlayerReadyToExistMainGame;
+
         private InputMenu()
         {
         }
 
-        private Screen screen = new Screen(new Point(0, MainGame.HEIGHT), MainGame.WIDTH, HEIGHT);
+        private Screen screen = new Screen(new Point(0, GameView.HEIGHT), GameView.WIDTH, HEIGHT);
+        
+        public void SetNumKeys(int totalNumKeys, int totalnumGems)
+        {
+            numKeysDisplay = $"0/{totalNumKeys} Keys";
+            numGemsDisplay = $"0/{totalnumGems} Gems";
+
+        }
+
+        public void UpdateNumCollectedKeys(int numCollectedKeys)
+        {
+            numKeysDisplay = $"{numCollectedKeys}{numKeysDisplay.Substring(1, numKeysDisplay.Length - 1)}";
+        }
+
+        public void UpdateNumCollectedGems(int numCollectedGems)
+        {
+            numGemsDisplay = $"{numCollectedGems}{numGemsDisplay.Substring(1, numGemsDisplay.Length - 1)}";
+        }
 
         public void LoadContent()
         {
             inputFont = Helper.Content.Load<SpriteFont>("Fonts/InputFont");
-            progressBar = new Bar(new Rectangle(10, 90, 200, 30));
+            progressBar = new Bar(new Rectangle(10, 100, 200, 30));
         }
 
         public void Update()
@@ -139,21 +163,29 @@ namespace Game
 
                     if (inputFailed)
                     {
-                        if(keysReleasedThisFrame.Contains(Keys.Enter))
+                        if (keysReleasedThisFrame.Contains(Keys.Enter))
                         {
                             keysReleasedThisFrame.Remove(Keys.Enter);
-                            input = string.Empty;
-                            inputMessage = string.Empty;
-                            commandArrow = string.Empty;
+                            
+                            if (lastLevelComplete)
+                            {
+                                PlayerReadyToExistMainGame.Invoke();
+                            }
+                            else
+                            {
+                                input = string.Empty;
+                                inputMessage = string.Empty;
+                                commandArrow = string.Empty;
+                                CommandReadingStarting.Invoke();
+                                progressBar.Reset();
+                            }
                             inputFailed = false;
-                            CommandReadingStarting.Invoke();
-                            progressBar.Reset();
                         }
                         else
                         {
                             break;
                         }
-                       
+
                     }
 
                     for (int i = 0; i < keysReleasedThisFrame.Count; i++)
@@ -179,6 +211,7 @@ namespace Game
                         }
                         else if (key == Keys.Enter)
                         {
+                            //input = "s4qcfs5dfeeces8dfeedcqs6afs4qfa+eecedc+aqa+++eec++s4af+++dee".ToUpper();
                             stage = Stage.Proccessing;
                         }
                         else
@@ -203,12 +236,11 @@ namespace Game
                         Queue<char> commands = ReadPlayerInput(input);
                         inputMessage = "Passed";
 
-                        if (CommandReadingComplete != null)
-                        {
-                            CommandReadingComplete.Invoke(commands);
-                        }
+                        CommandReadingComplete.Invoke(commands);
+
                         input += "~";
                         progressBar.FullAmount = commandOrder.Count;
+                        curCommandNumber = 0;
                         commandOrder.Enqueue(input.Length - 1);
                         stage = Stage.Waiting;
                     }
@@ -239,7 +271,7 @@ namespace Game
                         throw new FormatException("Loops must start with 'S'");
                     }
 
-                    if(i == loopInfo.StartIndex)
+                    if (i == loopInfo.StartIndex)
                     {
                         throw new FormatException("Loops cannot be empty");
                     }
@@ -303,13 +335,16 @@ namespace Game
 
         public void Draw()
         {
-            screen.Draw(Helper.GetRectTexture(MainGame.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, MainGame.WIDTH, HEIGHT));
+            screen.Draw(Helper.GetRectTexture(GameView.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, GameView.WIDTH, HEIGHT));
             screen.DrawText(inputFont, "Command: " + input, new Vector2(10, 10), Color.White);
 
             screen.DrawText(inputFont, "Action       : ", new Vector2(10, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
             screen.DrawText(inputFont, commandArrow, new Vector2(commandArrowXPosition, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
 
-            screen.DrawText(inputFont, "Status: " + inputMessage, new Vector2(10, 10 + 3 * inputFont.MeasureString("S").Y + 5), Color.White);
+            screen.DrawText(inputFont, "Status: " + inputMessage, new Vector2(10, 10 + 2 * inputFont.MeasureString("S").Y + 5), Color.White);
+
+            screen.DrawText(inputFont, numKeysDisplay, new Vector2(10, 10 + 3 * inputFont.MeasureString("S").Y + 10), Color.White);
+            screen.DrawText(inputFont, numGemsDisplay, new Vector2(GameView.WIDTH - inputFont.MeasureString(numGemsDisplay).X - 10, 10 + 3 * inputFont.MeasureString("S").Y + 10), Color.White);
 
             progressBar.Draw(screen);
         }
@@ -318,12 +353,13 @@ namespace Game
 
         public int GetMaxY() => screen.GetMaxY();
 
-        public void StartInputProcess(string message)
+        public void StartInputProcess(string message, bool lastLevelComplete)
         {
-            inputMessage = message + " : Please press ENTER to try again.";
+            inputMessage = message;
             inputFailed = true;
             stage = Stage.Input;
             commandOrder = new Queue<int>();
+            this.lastLevelComplete = lastLevelComplete;
         }
 
         private void GetReleasedKeys()
@@ -336,7 +372,7 @@ namespace Game
 
         public void ShowNextCommand()
         {
-            if(commandArrow == string.Empty)
+            if (commandArrow == string.Empty)
             {
                 commandArrow = "^";
             }

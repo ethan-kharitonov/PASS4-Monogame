@@ -8,7 +8,7 @@ namespace Game
     class Door : GameObject
     {
         private static readonly Texture2D image = Helper.LoadImage("Images/door1");
-        public Door(int x, int y) : base(image, x, y, MainGame.CELL_SIDE_LENGTH, MainGame.CELL_SIDE_LENGTH)
+        public Door(int x, int y) : base(image, x, y, GameView.CELL_SIDE_LENGTH, GameView.CELL_SIDE_LENGTH)
         {
 
         }

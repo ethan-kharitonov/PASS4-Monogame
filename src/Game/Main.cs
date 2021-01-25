@@ -13,13 +13,16 @@ namespace Game
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
-        private Texture2D legend;
-
-        private ISection[] sections = new ISection[]
+        enum Stage
         {
-            MainGame.Instance,
-            InputMenu.Instance
-        };
+            Instructions,
+            Menu,
+            Game,
+            NameEntry,
+            HighScores
+        }
+
+        private Stage stage = Stage.Game;
 
         public Main()
         {
@@ -30,8 +33,8 @@ namespace Game
 
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferWidth = sections.Max(s => s.GetMaxX());
-            graphics.PreferredBackBufferHeight = sections.Max(s => s.GetMaxY());
+            graphics.PreferredBackBufferWidth = 900;
+            graphics.PreferredBackBufferHeight = 555;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -44,21 +47,10 @@ namespace Game
 
             Helper.Content = Content;
             Helper.graphics = graphics;
+            Helper.SpriteBatch = spriteBatch;
 
-            MainGame.Instance.RunComplete += m => InputMenu.Instance.StartInputProcess(m);
-            InputMenu.Instance.CommandReadingComplete += q => MainGame.Instance.LoadCommands(q);
-
-            MainGame.Instance.ExecutingNextCommand += () => InputMenu.Instance.ShowNextCommand();
-
-            InputMenu.Instance.CommandReadingStarting += () => MainGame.Instance.ReStartLevel();
-
-            foreach (ISection section in sections)
-            {
-                section.LoadContent();
-            }
-
-
-            legend = Helper.LoadImage("Images/command legend ethan");
+            MainGame.LoadContent();
+            MainGame.AllLevelsComplete += () => stage = Stage.NameEntry;
         }
 
         protected override void Update(GameTime gameTime)
@@ -66,10 +58,25 @@ namespace Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            foreach(ISection section in sections)
+            switch (stage)
             {
-                section.Update();
+                case Stage.Instructions:
+                    break;
+
+                case Stage.Menu:
+                    break;
+
+                case Stage.Game:
+                    MainGame.Update();
+                    break;
+
+                case Stage.NameEntry:
+                    break;
+
+                case Stage.HighScores:
+                    break;
             }
+
 
             base.Update(gameTime);
         }
@@ -80,18 +87,26 @@ namespace Game
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
 
-            foreach (ISection section in sections)
+            switch (stage)
             {
-                section.Draw();
-            }
+                case Stage.Instructions:
+                    break;
 
-            if (InputMenu.Instance.ShowLegend)
-            {
-                spriteBatch.Draw(legend, Vector2.Zero, Color.White);
+                case Stage.Menu:
+                    break;
+
+                case Stage.Game:
+                    MainGame.Draw();
+                    break;
+
+                case Stage.NameEntry:
+                    break;
+
+                case Stage.HighScores:
+                    break;
             }
 
             spriteBatch.End();
-
             base.Draw(gameTime);
         }
 

@@ -26,16 +26,41 @@ namespace Game
         private float xTargetPosition;
         private float xTargetVelocity = 0;
 
-        private bool keyCollected = false;
         private bool movingOnY = false;
 
         private bool HitWallFromBottom = false;
 
-        private int gemCount = 0;
         private Gem lastCollidedGem = null;
+        private Key lastCollectedKey = null;
+        
+        private int keyCount = 0;
+        private int gemCount = 0;
+
+        public event Action<int> KeyCollected;
+        public event Action<int> GemCollected;
+
+        private int KeyCount 
+        {
+            get => keyCount;
+            set
+            {
+                keyCount = value;
+                KeyCollected.Invoke(KeyCount);
+            }
+        }
+        public int GemCount
+        {
+            get => gemCount;
+            private set
+            {
+                gemCount = value;
+                GemCollected.Invoke(GemCount);
+            }
+        }
 
         public delegate void Notify();
         public event Notify HitSpike;
+
 
         public Player(int x, int y) : base(image, x, y, width, height)
         {
@@ -44,13 +69,13 @@ namespace Game
 
         public override void Update()
         {
-            if (TruePosition.Y % MainGame.CELL_SIDE_LENGTH != 0 && Velocity.Y != gravity)
+            if (TruePosition.Y % GameView.CELL_SIDE_LENGTH != 0 && Velocity.Y != gravity)
             {
                 onGround = false;
             }
 
 
-            if(movingOnY)
+            if (movingOnY)
             {
                 Velocity.X = xTargetVelocity;
             }
@@ -72,14 +97,14 @@ namespace Game
             {
                 HitWallFromBottom = false;
             }
-            
+
         }
 
         public void LoadNextCommand(char command)
         {
-            if(TruePosition.X % 45 != 0)
+            if (TruePosition.X % 45 != 0)
             {
-                TruePosition = new Vector2((float)Math.Round(TruePosition.X / MainGame.CELL_SIDE_LENGTH) * MainGame.CELL_SIDE_LENGTH, TruePosition.Y);
+                TruePosition = new Vector2((float)Math.Round(TruePosition.X / GameView.CELL_SIDE_LENGTH) * GameView.CELL_SIDE_LENGTH, TruePosition.Y);
             }
 
             movingOnY = false;
@@ -90,23 +115,23 @@ namespace Game
             {
                 case 'A':
                     Velocity.X = -xSpeed;
-                    xTargetPosition = TruePosition.X - MainGame.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = TruePosition.X - GameView.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case 'D':
                     Velocity.X = xSpeed;
-                    xTargetPosition = TruePosition.X + MainGame.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = TruePosition.X + GameView.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'E':
                     movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = xSpeed;
-                    xTargetPosition = TruePosition.X + MainGame.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = TruePosition.X + GameView.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'Q':
                     movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = -xSpeed;
-                    xTargetPosition = TruePosition.X - MainGame.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = TruePosition.X - GameView.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case '+':
                     LoadNextCommand('D');
@@ -119,13 +144,20 @@ namespace Game
                 case 'C':
                     if (lastCollidedGem != null)
                     {
-                        ++gemCount;
+                        ++GemCount;
                         InvokeDeleteReady(lastCollidedGem);
+                    }
+
+                    if (lastCollectedKey != null)
+                    {
+                        ++KeyCount;
+                        InvokeDeleteReady(lastCollectedKey);
                     }
                     break;
             }
 
             lastCollidedGem = null;
+            lastCollectedKey = null;
 
         }
 
@@ -172,14 +204,15 @@ namespace Game
 
         public override void CollideWith(Key key, IEnumerable<Side> sides)
         {
-            keyCollected = true;
+            lastCollectedKey = key;
         }
 
         public override void CollideWith(Door door, IEnumerable<Side> sides)
         {
-            if (keyCollected)
+            if (KeyCount > 0)
             {
                 door.WalkThrough();
+                --KeyCount;
             }
         }
 
