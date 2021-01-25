@@ -131,7 +131,6 @@ namespace Game
             switch (stage)
             {
                 case Stage.Input:
-
                     if (keysReleasedThisFrame.Contains(Keys.L))
                     {
                         keysReleasedThisFrame.Remove(Keys.L);
@@ -148,6 +147,7 @@ namespace Game
                             commandArrow = string.Empty;
                             inputFailed = false;
                             CommandReadingStarting.Invoke();
+                            progressBar.Reset();
                         }
                         else
                         {

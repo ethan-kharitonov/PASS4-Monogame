@@ -35,6 +35,6 @@ namespace Game
             screen.Draw(insideImg, new Rectangle(box.X + margins.X, box.Y + margins.Y, (int)Math.Round(amount), box.Height - 2 * margins.Y + 1));
         }
 
-
+        internal void Reset() => amount = 0;
     }
 }
