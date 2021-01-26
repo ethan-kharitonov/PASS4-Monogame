@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Game
+namespace PASS4
 {
     public class Main : Microsoft.Xna.Framework.Game
     {
@@ -21,7 +21,7 @@ namespace Game
             HighScores
         }
 
-        private Stage stage = Stage.NameEntry;
+        private Stage stage = Stage.Game;
 
         public const int WIDTH = 900;
         public const int HEIGHT = 555;
@@ -54,10 +54,11 @@ namespace Game
             Helper.InputFont = Content.Load<SpriteFont>("Fonts/InputFont");
            
 
-            MainGame.LoadContent();
-            MainGame.AllLevelsComplete += () => stage = Stage.NameEntry;
+            Game.LoadContent();
+            Game.AllLevelsComplete += () => stage = Stage.NameEntry;
 
             NameEntryMenu.LoadContent();
+            NameEntryMenu.InputComplete += () => stage = Stage.Menu;
         }
 
         protected override void Update(GameTime gameTime)
@@ -76,7 +77,7 @@ namespace Game
                     break;
 
                 case Stage.Game:
-                    MainGame.Update();
+                    Game.Update();
                     break;
 
                 case Stage.NameEntry:
@@ -106,7 +107,7 @@ namespace Game
                     break;
 
                 case Stage.Game:
-                    MainGame.Draw();
+                    Game.Draw();
                     break;
 
                 case Stage.NameEntry:

@@ -6,7 +6,7 @@ using System.Text;
 using System.Linq;
 using Microsoft.Xna.Framework;
 
-namespace Game
+namespace PASS4
 {
     class Player : GameObject
     {

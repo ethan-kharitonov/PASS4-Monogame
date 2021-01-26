@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Game
+namespace PASS4
 {
     public static class Helper
     {
@@ -39,7 +39,7 @@ namespace Game
                 }
                 else if (KeysReleasedThisFrame[i] == Keys.Back)
                 {
-                    text = text.Length == 0 ? string.Empty : text.Substring(1, text.Length - 1);
+                    text = text.Length == 0 ? string.Empty : text.Substring(0, text.Length - 1);
                 }
             }
 

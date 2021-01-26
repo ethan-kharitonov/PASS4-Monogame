@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Game
+namespace PASS4
 {
     class GameView : ISection
     {

@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace Game
+namespace PASS4
 {
     public class RayCollisionInfo : IEquatable<RayCollisionInfo>
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Game
+namespace PASS4
 {
     interface ISection
     {

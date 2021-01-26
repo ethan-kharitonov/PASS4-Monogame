@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Game
+namespace PASS4
 {
     class Crate : GameObject
     {

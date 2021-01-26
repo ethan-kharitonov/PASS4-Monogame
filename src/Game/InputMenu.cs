@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Game
+namespace PASS4
 {
     public class InputMenu : ISection
     {
