@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +16,47 @@ namespace Game
         public static SpriteBatch SpriteBatch;
         public static GraphicsDeviceManager graphics;
 
+        public static SpriteFont InputFont;
+
         private static Texture2D rect;
         private static Color[] data;
 
         private static RayCollisionInfo[] results = new RayCollisionInfo[4];
         private static (Vector2 intersection, bool isIntersecting) lineLineCollisionResult;
+
+        private static List<Keys> keysPressedLastFrame = new List<Keys>();
+        private static List<Keys> keysReleasedThisFrame = new List<Keys>();
+
+        public static List<Keys> KeysReleasedThisFrame => keysReleasedThisFrame;
+
+        public static string UpdateStringWithInput(string text, int max)
+        {
+            for (int i = KeysReleasedThisFrame.Count - 1; i >= 0; --i)
+            {
+                if (KeysReleasedThisFrame[i].ToString().Length == 1 && text.Length <= max)
+                {
+                    text += KeysReleasedThisFrame[i].ToString();
+                }
+                else if (KeysReleasedThisFrame[i] == Keys.Back)
+                {
+                    text = text.Length == 0 ? string.Empty : text.Substring(1, text.Length - 1);
+                }
+            }
+
+
+            return text;
+        }
+        public static void UpdateKeyBoard()
+        {
+            List<Keys> keysPressedThisFrame = Keyboard.GetState().GetPressedKeys().ToList();
+            if(keysPressedThisFrame.Count() != 0)
+            {
+
+            }
+            keysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
+
+            keysPressedLastFrame = keysPressedThisFrame;
+        }
 
         public static float GetRandomBetween(float a, float b)
             => (float)(Math.Min(a, b) + rnd.NextDouble() * Math.Abs(a - b));

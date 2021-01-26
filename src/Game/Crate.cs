@@ -15,6 +15,10 @@ namespace Game
         private HashSet<Crate> cratesAbove = new HashSet<Crate>();
         private HashSet<Crate> cratesBelow = new HashSet<Crate>();
 
+        public event Func<Crate, bool> CrateMove;
+        public event Action CollideWithGem;
+
+
         public Crate(int x, int y) : base(image, x, y, GameView.CELL_SIDE_LENGTH, GameView.CELL_SIDE_LENGTH)
         {
         }
@@ -31,6 +35,11 @@ namespace Game
 
         public void Push(IEnumerable<Side> sides)
         {
+            if (!CrateMove.Invoke(this))
+            {
+                return;
+            }
+
             if (cratesAbove.Count != 0)
             {
                 return;
@@ -75,5 +84,11 @@ namespace Game
         {
             return base.IsStandingStill();
         }*/
+
+        public override void CollideWith(Gem gem, IEnumerable<Side> sides)
+        {
+            InvokeDeleteReady(gem);
+            CollideWithGem.Invoke();
+        }
     }
 }

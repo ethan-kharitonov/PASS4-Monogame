@@ -85,8 +85,6 @@ namespace Game
         private Stage stage = Stage.Input;
         public static readonly InputMenu Instance = new InputMenu();
 
-        private SpriteFont inputFont;
-
         private string input = string.Empty;
         private string inputMessage = string.Empty;
         private string commandArrow = string.Empty;
@@ -95,9 +93,6 @@ namespace Game
         private int curCommandNumber = 0;
 
         private Bar progressBar;
-
-        private List<Keys> keysPressedLastFrame = new List<Keys>();
-        private List<Keys> keysReleasedThisFrame = new List<Keys>();
 
         private const int HEIGHT = 150;
 
@@ -118,6 +113,12 @@ namespace Game
         private bool lastLevelComplete = false;
 
         public event Action PlayerReadyToExistMainGame;
+
+        private int numCommands = 0;
+        private const int MAX_COMMANDS = 70;
+
+        private Point margins = new Point(10, 10);
+        private int lineSpacing = 5;
 
         private InputMenu()
         {
@@ -144,28 +145,25 @@ namespace Game
 
         public void LoadContent()
         {
-            inputFont = Helper.Content.Load<SpriteFont>("Fonts/InputFont");
             progressBar = new Bar(new Rectangle(10, 100, 200, 30));
         }
 
         public void Update()
         {
-            GetReleasedKeys();
-
             switch (stage)
             {
                 case Stage.Input:
-                    if (keysReleasedThisFrame.Contains(Keys.L))
+                    if (Helper.KeysReleasedThisFrame.Contains(Keys.L))
                     {
-                        keysReleasedThisFrame.Remove(Keys.L);
+                        Helper.KeysReleasedThisFrame.Remove(Keys.L);
                         showLegend = !showLegend;
                     }
 
                     if (inputFailed)
                     {
-                        if (keysReleasedThisFrame.Contains(Keys.Enter))
+                        if (Helper.KeysReleasedThisFrame.Contains(Keys.Enter))
                         {
-                            keysReleasedThisFrame.Remove(Keys.Enter);
+                            Helper.KeysReleasedThisFrame.Remove(Keys.Enter);
                             
                             if (lastLevelComplete)
                             {
@@ -178,6 +176,7 @@ namespace Game
                                 commandArrow = string.Empty;
                                 CommandReadingStarting.Invoke();
                                 progressBar.Reset();
+                                numCommands = 0;
                             }
                             inputFailed = false;
                         }
@@ -188,10 +187,15 @@ namespace Game
 
                     }
 
-                    for (int i = 0; i < keysReleasedThisFrame.Count; i++)
+                    for (int i = Helper.KeysReleasedThisFrame.Count - 1; i >= 0; --i)
                     {
-                        Keys key = keysReleasedThisFrame[i];
-                        keysPressedLastFrame.Remove(key);
+                        Keys key = Helper.KeysReleasedThisFrame[i];
+                        if (numCommands >= MAX_COMMANDS && !(key == Keys.Enter || key == Keys.Back))
+                        {
+                            continue;
+                        }
+
+                        Helper.KeysReleasedThisFrame.Remove(key);
                         if (key == Keys.Back)
                         {
                             if (input.Count() == 0)
@@ -213,6 +217,7 @@ namespace Game
                         {
                             //input = "s4qcfs5dfeeces8dfeedcqs6afs4qfa+eecedc+aqa+++eec++s4af+++dee".ToUpper();
                             stage = Stage.Proccessing;
+                            --numCommands;
                         }
                         else
                         {
@@ -228,6 +233,7 @@ namespace Game
 
                             input += key.ToString();
                         }
+                        numCommands = input.Length;
                     }
                     break;
                 case Stage.Proccessing:
@@ -336,15 +342,17 @@ namespace Game
         public void Draw()
         {
             screen.Draw(Helper.GetRectTexture(GameView.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, GameView.WIDTH, HEIGHT));
-            screen.DrawText(inputFont, "Command: " + input, new Vector2(10, 10), Color.White);
 
-            screen.DrawText(inputFont, "Action       : ", new Vector2(10, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
-            screen.DrawText(inputFont, commandArrow, new Vector2(commandArrowXPosition, 10 + inputFont.MeasureString("S").Y + 5), Color.White);
+            DrawOnLine($"Command: {input}", 0);
 
-            screen.DrawText(inputFont, "Status: " + inputMessage, new Vector2(10, 10 + 2 * inputFont.MeasureString("S").Y + 5), Color.White);
+            DrawOnLine("Action       : ", 1);
+            DrawOnLine(commandArrow, 1, (int)commandArrowXPosition);
 
-            screen.DrawText(inputFont, numKeysDisplay, new Vector2(10, 10 + 3 * inputFont.MeasureString("S").Y + 10), Color.White);
-            screen.DrawText(inputFont, numGemsDisplay, new Vector2(GameView.WIDTH - inputFont.MeasureString(numGemsDisplay).X - 10, 10 + 3 * inputFont.MeasureString("S").Y + 10), Color.White);
+            DrawOnLine($"Status: {inputMessage}", 2);
+            DrawOnLine($"{numCommands}/{MAX_COMMANDS} Commands", 2, false);
+
+            DrawOnLine(numKeysDisplay, 3);
+            DrawOnLine(numGemsDisplay, 3, false);
 
             progressBar.Draw(screen);
         }
@@ -362,14 +370,6 @@ namespace Game
             this.lastLevelComplete = lastLevelComplete;
         }
 
-        private void GetReleasedKeys()
-        {
-            List<Keys> keysPressedThisFrame = Keyboard.GetState().GetPressedKeys().ToList();
-            keysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
-
-            keysPressedLastFrame = keysPressedThisFrame;
-        }
-
         public void ShowNextCommand()
         {
             if (commandArrow == string.Empty)
@@ -380,7 +380,13 @@ namespace Game
             ++curCommandNumber;
             progressBar.Update(curCommandNumber);
 
-            commandArrowXPosition = inputFont.MeasureString("Command:xx" + input.Substring(0, commandOrder.Dequeue())).X + 3;
+            commandArrowXPosition = Helper.InputFont.MeasureString("Command:xx" + input.Substring(0, commandOrder.Dequeue())).X + 3;
         }
+
+        private void DrawOnLine(string text, int lineNum, bool leftToRight = true) 
+            => screen.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : GameView.WIDTH - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
+
+        private void DrawOnLine(string text, int lineNum, int xPosition)
+            => screen.DrawText(Helper.InputFont, text, new Vector2(xPosition, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
     }
 }

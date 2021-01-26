@@ -281,7 +281,13 @@ namespace Game
                             gameObjects.Add(new Wall(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
                             break;
                         case '2':
-                            gameObjects.Add(new Crate(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH));
+                            Crate crate = new Crate(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH);
+                            crate.CrateMove += c =>
+                            {
+                                IEnumerable<GameObject> objectsAbove = gameObjects.Where(g => Helper.IsPointInOrOnRectangle(g.TopLeftGridPoint.ToVector2(), new Rectangle(c.Box.Location - new Point(0, c.Box.Height), c.Box.Size)));
+                                return !(objectsAbove.Count() != 0 && (objectsAbove.First() is Gem || objectsAbove.First() is Key));
+                            };
+                            gameObjects.Add(crate);
                             break;
                         case '3':
                             flagPos = new Point(c * CELL_SIDE_LENGTH, r * CELL_SIDE_LENGTH);
@@ -303,6 +309,8 @@ namespace Game
                     }
                 }
             }
+
+            gameObjects.OfType<Crate>().ToList().ForEach(c => c.CollideWithGem += () => player.AddGem());
 
             KeysAndGemsCounted.Invoke(numKeys, numGems);
 

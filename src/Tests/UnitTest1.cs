@@ -268,7 +268,7 @@ namespace Tests
         }
 
 
-        private static readonly TestCaseData[] ReadPlayerInputInput = new[]
+        /*private static readonly TestCaseData[] ReadPlayerInputInput = new[]
         {
             new TestCaseData("AAS2DS2CCFDFAA")
             {
@@ -287,7 +287,7 @@ namespace Tests
         public string ReadPlayerInputTests(string input)
         {
             //return InputMenu.ReadPlayerInput(input).ToString();
-        }
+        }*/
 
     }
 }

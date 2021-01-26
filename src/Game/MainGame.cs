@@ -33,7 +33,6 @@ namespace Game
 
             InputMenu.Instance.PlayerReadyToExistMainGame += () => AllLevelsComplete.Invoke();
 
-
             foreach (ISection section in sections)
             {
                 section.LoadContent();

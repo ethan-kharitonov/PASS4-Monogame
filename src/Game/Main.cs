@@ -9,7 +9,6 @@ namespace Game
 {
     public class Main : Microsoft.Xna.Framework.Game
     {
-
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
@@ -22,7 +21,11 @@ namespace Game
             HighScores
         }
 
-        private Stage stage = Stage.Game;
+        private Stage stage = Stage.NameEntry;
+
+        public const int WIDTH = 900;
+        public const int HEIGHT = 555;
+
 
         public Main()
         {
@@ -33,8 +36,8 @@ namespace Game
 
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferWidth = 900;
-            graphics.PreferredBackBufferHeight = 555;
+            graphics.PreferredBackBufferWidth = WIDTH;
+            graphics.PreferredBackBufferHeight = HEIGHT;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -48,15 +51,21 @@ namespace Game
             Helper.Content = Content;
             Helper.graphics = graphics;
             Helper.SpriteBatch = spriteBatch;
+            Helper.InputFont = Content.Load<SpriteFont>("Fonts/InputFont");
+           
 
             MainGame.LoadContent();
             MainGame.AllLevelsComplete += () => stage = Stage.NameEntry;
+
+            NameEntryMenu.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            Helper.UpdateKeyBoard();
 
             switch (stage)
             {
@@ -71,6 +80,7 @@ namespace Game
                     break;
 
                 case Stage.NameEntry:
+                    NameEntryMenu.Update();
                     break;
 
                 case Stage.HighScores:
@@ -100,6 +110,7 @@ namespace Game
                     break;
 
                 case Stage.NameEntry:
+                    NameEntryMenu.Draw();
                     break;
 
                 case Stage.HighScores:

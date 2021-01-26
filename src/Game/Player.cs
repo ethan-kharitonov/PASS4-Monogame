@@ -215,10 +215,11 @@ namespace Game
                 --KeyCount;
             }
         }
-
         public override bool IsStandingStill()
         {
             return base.IsStandingStill() && onGround;
         }
+
+        public void AddGem() => ++GemCount;
     }
 }
