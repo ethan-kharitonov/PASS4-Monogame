@@ -77,6 +77,7 @@ namespace PASS4
 
         private int numCommands;
 
+        private bool GamePaused = true;
 
         private LevelContainer()
         {
@@ -93,6 +94,7 @@ namespace PASS4
         }
         public void LoadCommands(Queue<char> commands)
         {
+            GamePaused = false;
             this.commands = commands;
             numCommands = commands.Count;
 
@@ -101,6 +103,11 @@ namespace PASS4
 
         public void Update()
         {
+            if (GamePaused)
+            {
+                return;
+            }
+
             if (!commands.IsEmpty && gameObjects.All(g => g.IsStandingStill()))
             {
                 player.LoadNextCommand(commands.Dequeue());
@@ -108,6 +115,7 @@ namespace PASS4
 
                 if (commands.IsEmpty)
                 {
+                    GamePaused = true;
                     if (player.Box.Location == flagPos)
                     {
                         if (player.GemCount != numGems)
@@ -240,10 +248,6 @@ namespace PASS4
 
                 if (firstCollision.Sides.Contains(Side.Left) || firstCollision.Sides.Contains(Side.Right))
                 {
-                    if(gameObject is Crate)
-                    {
-
-                    }
                     gameObject.Velocity.X = 0;
 
                     if(wantedVelocity.X != 0)
@@ -256,7 +260,12 @@ namespace PASS4
                 if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
                 {
                     gameObject.Velocity.Y = 0;
-                    wantedVelocity.Y = firstCollision.Distance.Y;
+
+                    if (wantedVelocity.Y != 0)
+                    {
+                        wantedVelocity.Y = firstCollision.Distance.Y;
+
+                    }
                 }
 
 
@@ -342,7 +351,7 @@ namespace PASS4
                             crate.CrateMove += c =>
                             {
                                 IEnumerable<GameObject> objectsAbove = gameObjects.Where(g => Helper.IsPointInOrOnRectangle(g.TopLeftGridPoint.ToVector2(), new Rectangle(c.Box.Location - new Point(0, c.Box.Height), c.Box.Size)));
-                                return !(objectsAbove.Count() != 0 && (objectsAbove.First() is Gem || objectsAbove.First() is Key));
+                                return objectsAbove.Count() != 0 && (objectsAbove.First() is Gem || objectsAbove.First() is Key);
                             };
                             gameObjects.Add(crate);
                             break;
@@ -387,6 +396,7 @@ namespace PASS4
             player.HitSpike += () =>
             {
                 commands = new Queue<char>();
+                GamePaused = true;
                 RunComplete.Invoke("The player hit a spike : press ENTER to try again.");
             };
 

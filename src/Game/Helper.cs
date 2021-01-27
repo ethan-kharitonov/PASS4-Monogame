@@ -1,4 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿//Author name: Ethan Kharitonov
+//Project name: PASS4
+//File name: Helper.cs
+//Date Created: January 17th, 2021
+//Date Modified: January 27th, 2021
+//Description: A static class containing a bunch of usefull function
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,35 +16,46 @@ namespace PASS4
 {
     public static class Helper
     {
+        //Variable used to generate random numbers
         public static readonly Random rnd = new Random();
 
+        //Variables used for drawing to the screen
         public static ContentManager Content;
         public static SpriteBatch SpriteBatch;
         public static GraphicsDeviceManager graphics;
 
+        //The most commonly used font (for input)
         public static SpriteFont InputFont;
 
         private static Texture2D rect;
         private static Color[] data;
 
+        //Variables used for ray box collision (global so they dont get erased and recreated every frame)
         private static RayCollisionInfo[] results = new RayCollisionInfo[4];
         private static (Vector2 intersection, bool isIntersecting) lineLineCollisionResult;
 
+        //The keys pressed last frame and the keys released this frame
         private static List<Keys> keysPressedLastFrame = new List<Keys>();
-        private static List<Keys> keysReleasedThisFrame = new List<Keys>();
+        public static List<Keys> KeysReleasedThisFrame { get; private set; } = new List<Keys>();
 
-        public static List<Keys> KeysReleasedThisFrame => keysReleasedThisFrame;
-
+        /// <summary>
+        /// Appends all of this frames input onto a string
+        /// </summary>
+        /// <param name="text">The string to add onto</param>
+        /// <returns>The new updated string</returns>
         public static string UpdateStringWithInput(string text)
         {
+            //Add all the keys released this frame
             foreach (Keys key in KeysReleasedThisFrame)
             {
+                //Simply add it if it is one charachter or a digit between 0 and 10
                 if (key.ToString().Length == 1)
                 {
                     text += key.ToString();
                 }
                 else
                 {
+                    //Try converting to an int and adding
                     try
                     {
                         int keyNumber = Convert.ToInt32(key.ToString()[1]) - '0';
@@ -49,6 +66,7 @@ namespace PASS4
                     }
                 }
                
+                //Proparly handle special keys like plus, minus and backspace
                 if (key == Keys.OemPlus)
                 {
                     text += '+';
@@ -59,49 +77,72 @@ namespace PASS4
                 }
                 else if (key == Keys.Back)
                 {
+                    //Remove the last letter of strings with more than two charachters or empty the string
                     text = text.Length <= 1 ? string.Empty : text.Substring(0, text.Length - 1);
                 }
             }
 
-
+            //Return the updated string
             return text;
         }
 
-       /* public static string UpdateStringWithInput(string text) 
-            => UpdateStringWithInput(text, k => true);*/
-
+        /// <summary>
+        /// Limit a string to a certain length
+        /// </summary>
+        /// <param name="text">The string</param>
+        /// <param name="maxChars">The length</param>
+        /// <returns></returns>
         public static string TrimString(string text, int maxChars) 
             => text.Length <= maxChars ? text : text.Substring(0, maxChars);
+
+        /// <summary>
+        /// Update the keys pressed last frame and keys released this frame variables
+        /// </summary>
         public static void UpdateKeyBoard()
         {
+            //Set keys released this frame to keys that were pressed last frame but not pressed this frame
             List<Keys> keysPressedThisFrame = Keyboard.GetState().GetPressedKeys().ToList();
-            keysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
+            KeysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
 
+            //Update the keys pressed last frame
             keysPressedLastFrame = keysPressedThisFrame;
         }
 
-        public static float GetRandomBetween(float a, float b)
-            => (float)(Math.Min(a, b) + rnd.NextDouble() * Math.Abs(a - b));
-
+        /// <summary>
+        /// Loads an image from a given file path
+        /// </summary>
+        /// <param name="path">The filepath of the image</param>
+        /// <returns>The loaded image</returns>
         public static Texture2D LoadImage(string path)
         {
             return Content.Load<Texture2D>(path);
         }
 
+
+        /// <summary>
+        /// Checks if some line is intersecting a vertical line (if both end points are on the vertical line, prioritise start)
+        /// </summary>
+        /// <param name="line">Any line</param>
+        /// <param name="verticalLine">Vertical line</param>
+        /// <returns>The point of intersection and true if they intersect, return (0, 0) and false otherwise</returns>
         public static (Vector2 intersection, bool isIntersecting) LineIntersectWithVerticalLine(Line line, Line verticalLine)
         {
+            //Throw an exception if the vertical line is not vertical
             if (!verticalLine.IsVertical)
             {
                 throw new ArgumentException("The second line must be vertical");
             }
 
+            //Tests incase the regular line is also vertical
             if (line.IsVertical)
             {
+                //Check for trivial non intersection
                 if (line.Start.X != verticalLine.Start.X)
                 {
                     return (Vector2.Zero, false);
                 }
 
+                //Check if start is on the vertical line
                 if (IsPointOnLine(line.Start, verticalLine))
                 {
                     return (line.Start, true);
@@ -131,28 +172,44 @@ namespace PASS4
             Vector2 intersection = new Vector2(verticalLine.Start.X, line.Start.Y + (verticalLine.Start.X - line.Start.X) * line.Slope);
 
             return IsPointOnLine(intersection, line) && IsPointOnLine(intersection, verticalLine) ? (intersection, true) : (Vector2.Zero, false);
-
-
         }
 
+        /// <summary>
+        /// Checks if regular line intersects with a hoizontal line
+        /// </summary>
+        /// <param name="line">The regular line</param>
+        /// <param name="horizontalLine">The horizontal line</param>
+        /// <returns>The point of intersection and true if they intersect, return (0, 0) and false otherwise</returns>
+        /// <see cref="LineIntersectWithVerticalLine(Line, Line)"/>
         public static (Vector2 intersection, bool isIntersecting) LineIntersectsWithHorizontal(Line line, Line horizontalLine)
         {
+            //Throw an exception if the horizontal line is not horizontal
             if (!horizontalLine.IsVertical && horizontalLine.Slope != 0)
             {
                 throw new ArgumentException("Second line must be horizontal");
             }
 
+            //Rotate both lines by 90 degrees (horizontal --> vertical)
             Line rotatedLine = RotateLine90DegreesCounterClockwise(line);
             Line rotatedHorizontalLine = RotateLine90DegreesCounterClockwise(horizontalLine);
 
+            //Check if the regular line intersects with the now vertical line
             (Vector2 intersection, bool isIntersecting) result = LineIntersectWithVerticalLine(rotatedLine, rotatedHorizontalLine);
 
+            //Rotate the intersection point back 90 degrees and return the results
             return (Rotate90DegreesClockwise(result.intersection), result.isIntersecting);
-
         }
 
+        /// <summary>
+        /// Finds information about the collision between a ray and a rectangle.
+        /// Ignore collisions that lie on the rectangle
+        /// </summary>
+        /// <param name="ray">A line (but treated like a lazer beam - cut after collision)</param>
+        /// <param name="box">The box</param>
+        /// <returns>Collision information</returns>
         public static RayCollisionInfo RayBoxFirstCollision(Line ray, Rectangle box)
         {
+            //Checks if the ray intersects with all four sides of the rectangle
             lineLineCollisionResult = LineIntersectsWithHorizontal(ray, new Line(new Vector2(box.Left, box.Top), new Vector2(box.Right, box.Top)));
             results[0] = new RayCollisionInfo(lineLineCollisionResult.intersection, lineLineCollisionResult.intersection - ray.Start, Side.Top, lineLineCollisionResult.isIntersecting);
 
@@ -165,10 +222,13 @@ namespace PASS4
             lineLineCollisionResult = LineIntersectWithVerticalLine(ray, new Line(new Vector2(box.Left, box.Top), new Vector2(box.Left, box.Bottom)));
             results[3] = new RayCollisionInfo(lineLineCollisionResult.intersection, lineLineCollisionResult.intersection - ray.Start, Side.Left, lineLineCollisionResult.isIntersecting);
 
+            //Get the information about collided sides
             List<RayCollisionInfo> collidedRays = results.Where(c => c.IsIntersecting).ToList();
 
+            
             if (collidedRays.Count == 1)
             {
+                //If that the line doesnt lie on the rectangle return its collision info, otherwise return false
                 if (IsPointInsideRectangle(ray.Start, box) || IsPointInsideRectangle(ray.End, box))
                 {
                     return collidedRays[0];
@@ -179,6 +239,7 @@ namespace PASS4
 
             if (collidedRays.Count == 2)
             {
+                //If it collided on a corner make sure one side of the ray is on the corner
                 if (collidedRays[0].Distance.Length() == collidedRays[1].Distance.Length())
                 {
                     if (!IsPointInsideRectangle(ray.Start, box) && !IsPointInsideRectangle(ray.End, box))
@@ -186,20 +247,24 @@ namespace PASS4
                         return new RayCollisionInfo(false);
                     }
 
+                    //return one of the collision infos with the sides of both collisions
                     collidedRays[0].Sides.Add(collidedRays[1].Sides[0]);
                     return collidedRays[0];
                 }
 
 
+                //Discard lines that cover an entire side
                 if ((ray.IsVertical && (ray.Start.X == box.Left || ray.Start.X == box.Right)) ||
                     ray.Slope == 0 && (ray.Start.Y == box.Top || ray.Start.Y == box.Bottom))
                 {
                     return new RayCollisionInfo(false);
                 }
 
+                //return the shortest distance collision
                 return collidedRays[0].Distance.Length() < collidedRays[1].Distance.Length() ? collidedRays[0] : collidedRays[1];
             }
 
+            //Return no collision if no sides collided
             return new RayCollisionInfo(false);
         }
 

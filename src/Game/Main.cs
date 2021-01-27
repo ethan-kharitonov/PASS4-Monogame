@@ -18,7 +18,7 @@ namespace PASS4
             HighScores
         }
 
-        private Stage stage = Stage.NameEntry;
+        private Stage stage = Stage.Game;
 
         public const int WIDTH = 900;
         public const int HEIGHT = 555;

@@ -36,9 +36,12 @@ namespace PASS4
 
         public void Push(IEnumerable<Side> sides)
         {
-            if (!CrateMove.Invoke(this))
+            if (TruePosition.X % 45 == 0)
             {
-                return;
+                if (CrateMove.Invoke(this))
+                {
+                    return;
+                }
             }
 
             if (cratesAbove.Count != 0)
