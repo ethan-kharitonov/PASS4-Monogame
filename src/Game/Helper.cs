@@ -29,15 +29,26 @@ namespace PASS4
 
         public static List<Keys> KeysReleasedThisFrame => keysReleasedThisFrame;
 
-        public static string UpdateStringWithInput(string text, Predicate<Keys> predicate)
+        public static string UpdateStringWithInput(string text)
         {
             foreach (Keys key in KeysReleasedThisFrame)
             {
-                if (key.ToString().Length == 1 && predicate(key))
+                if (key.ToString().Length == 1)
                 {
                     text += key.ToString();
                 }
-
+                else
+                {
+                    try
+                    {
+                        int keyNumber = Convert.ToInt32(key.ToString()[1]) - '0';
+                        text += 0 < keyNumber && keyNumber < 10 ? keyNumber.ToString() : string.Empty;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+               
                 if (key == Keys.OemPlus)
                 {
                     text += '+';
@@ -56,8 +67,8 @@ namespace PASS4
             return text;
         }
 
-        public static string UpdateStringWithInput(string text) 
-            => UpdateStringWithInput(text, k => true);
+       /* public static string UpdateStringWithInput(string text) 
+            => UpdateStringWithInput(text, k => true);*/
 
         public static string TrimString(string text, int maxChars) 
             => text.Length <= maxChars ? text : text.Substring(0, maxChars);

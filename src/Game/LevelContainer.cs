@@ -52,6 +52,7 @@ namespace PASS4
         private int numGems = 0;
 
         public static Stopwatch timer = new Stopwatch();
+        private bool startingNewLevel = true;
 
         private LevelContainer()
         {
@@ -66,11 +67,7 @@ namespace PASS4
             LoadLevelFromFile($"{LEVEL_PATH_SUFFIX}{curLevel}.txt");
             timer.Start();
         }
-        public void LoadCommands(Queue<char> commands)
-        {
-            this.commands = commands;
-            commands.Enqueue('X');
-        }
+        public void LoadCommands(Queue<char> commands) => this.commands = commands;
 
         public void Update()
         {
@@ -100,6 +97,7 @@ namespace PASS4
 
                                 levelTimes[curLevel - 1] = timer.Elapsed.Milliseconds;
                                 ++curLevel;
+                                startingNewLevel = true;
                             }
 
                         }
@@ -355,6 +353,11 @@ namespace PASS4
         public void ReStartLevel()
         {
             LoadLevelFromFile($"{LEVEL_PATH_SUFFIX}{curLevel}.txt");
+            if (startingNewLevel)
+            {
+                timer.Restart();
+                startingNewLevel = false;
+            }
         }
 
         public int GetMaxX() => screen.GetMaxX();

@@ -128,17 +128,20 @@ namespace PASS4
         private Point margins = new Point(10, 10);
         private int lineSpacing = 5;
 
-        private Keys[] validKeys = new[]
+        private char[] validChars = new[]
         {
-            Keys.A,
-            Keys.D,
-            Keys.S,
-            Keys.F,
-            Keys.Q,
-            Keys.E,
+            'A',
+            'D',
+            'S',
+            'F',
+            'Q',
+            'E',
+            '+',
+            '-',
+            'C'
         };
 
-        Predicate<Keys> isKeyValidDigit = key =>
+        Predicate<char> isCharValidDigit = key =>
         {
             int keyNumber = Convert.ToInt32(key) - '0';
             return 0 < keyNumber && keyNumber < 10;
@@ -201,14 +204,10 @@ namespace PASS4
                     break;
 
                 case Stage.Input:
-                    input = Helper.UpdateStringWithInput(input, key => validKeys.Contains(key) || isKeyValidDigit(key));
-                    input = Helper.TrimString(input, MAX_COMMANDS);
-
-                    numCommands = input.Length;
+                    input = string.Concat(Helper.UpdateStringWithInput(input).Where(k => validChars.Contains(k) || isCharValidDigit(k)).Take(MAX_COMMANDS));
 
                     if (Helper.KeysReleasedThisFrame.Contains(Keys.Enter))
                     {
-                        --numCommands;
                         stage = Stage.Proccessing;
                     }
 
@@ -217,14 +216,17 @@ namespace PASS4
                     try 
                     {
                         Queue<char> commands = ConvertInputIntoCommands(input);
+                        input += "~";
+                        commands.Enqueue('~');
+                        commandOrder.Enqueue(input.Length - 1);
+                        numCommands = input.Length;
+
+
                         inputMessage = "Passed";
 
                         CommandReadingComplete.Invoke(commands);
 
-                        input += "~";
-                        commandOrder.Enqueue(input.Length - 1);
-
-                        progressBar.FullAmount = commandOrder.Count;
+                        progressBar.FullAmount = commandOrder.Count - 1;
                         curCommandNumber = 0;
                         stage = Stage.Waiting;
                     }

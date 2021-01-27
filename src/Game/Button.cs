@@ -11,6 +11,8 @@ namespace PASS4
         private static readonly Texture2D buttonPressed = Helper.LoadImage("Images/Button/Button BG");
 
         private bool isPressed = false;
+        private bool isHoverd = false;
+
         private Rectangle box;
 
         private Action onClickAction;
@@ -25,6 +27,7 @@ namespace PASS4
         {
             if(Helper.IsPointInOrOnRectangle(Mouse.GetState().Position.ToVector2(), box))
             {
+                isHoverd = true;
                 if(isPressed && Mouse.GetState().LeftButton == ButtonState.Released)
                 {
                     onClickAction.Invoke();
@@ -32,11 +35,15 @@ namespace PASS4
 
                 isPressed = Mouse.GetState().LeftButton == ButtonState.Pressed;
             }
+            else
+            {
+                isHoverd = false;
+            }
         }
 
         public void Draw()
         {
-            Helper.SpriteBatch.Draw(isPressed ? buttonPressed : button, box, Color.White);
+            Helper.SpriteBatch.Draw(isPressed ? buttonPressed : button, box, isHoverd ? Color.Gainsboro : Color.White);
         }
 
     }
