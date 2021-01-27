@@ -10,7 +10,28 @@ namespace PASS4
 {
     class LevelContainer : ISection
     {
+        public class FinalResult
+        {
+            public int TotalScore = 0;
+            public int TotalTime = 0;
+            public LevelResult[] LevelResults = new LevelResult[2];
+        }
+
+        public class LevelResult
+        {
+            public int Score;
+            public int Time;
+
+            public LevelResult(int score, int time)
+            {
+                Score = score;
+                Time = time;
+            }
+        }
+
         public static readonly LevelContainer Instance = new LevelContainer();
+
+        private FinalResult finalResult = new FinalResult();
 
         public event Action ExecutingNextCommand;
         public event Action<string> RunComplete;
@@ -43,9 +64,9 @@ namespace PASS4
         private Queue<char> commands = new Queue<char>();
 
         private const string LEVEL_PATH_SUFFIX = "../../../Levels/Level";
-        private int curLevel = 1;
+        private int curLevel = 5;
 
-        private const int NUM_LEVELS = 2;
+        public const int NUM_LEVELS = 4;
 
         private int numKeys = 0;
         private int numGems = 0;
@@ -54,6 +75,7 @@ namespace PASS4
         private bool startingNewLevel = true;
 
         private int numCommands;
+
 
         private LevelContainer()
         {
@@ -71,7 +93,9 @@ namespace PASS4
         public void LoadCommands(Queue<char> commands)
         {
             this.commands = commands;
-            numCommands = commands.Count - 1;
+            numCommands = commands.Count;
+
+            commands.Enqueue('X');
         }
 
         public void Update()
@@ -112,7 +136,7 @@ namespace PASS4
                     }
                     else
                     {
-                        RunComplete.Invoke("Failed to reach goal : press ENTER to try again.");
+                        RunComplete.Invoke("A'w Shuc'ks Buddy ol Pal! Failed to reach goal : press ENTER to try again.");
                     }
                 }
             }
@@ -212,10 +236,20 @@ namespace PASS4
                     return wantedVelocity;
                 }
 
+
                 if (firstCollision.Sides.Contains(Side.Left) || firstCollision.Sides.Contains(Side.Right))
                 {
+                    if(gameObject is Crate)
+                    {
+
+                    }
                     gameObject.Velocity.X = 0;
-                    wantedVelocity.X = firstCollision.Distance.X;
+
+                    if(wantedVelocity.X != 0)
+                    {
+                        wantedVelocity.X = firstCollision.Distance.X;
+                    }
+
                 }
 
                 if (firstCollision.Sides.Contains(Side.Top) || firstCollision.Sides.Contains(Side.Bottom))
@@ -333,6 +367,8 @@ namespace PASS4
             }
 
             gameObjects.OfType<Crate>().ToList().ForEach(c => c.CollideWithGem += () => player.AddGem());
+            gameObjects.OfType<Crate>().ToList().ForEach(c => c.CollideWithKey += () => player.AddKey());
+
 
             KeysAndGemsCounted.Invoke(numKeys, numGems);
 

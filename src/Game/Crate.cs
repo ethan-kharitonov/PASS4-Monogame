@@ -17,6 +17,7 @@ namespace PASS4
 
         public event Func<Crate, bool> CrateMove;
         public event Action CollideWithGem;
+        public event Action CollideWithKey;
 
 
         public Crate(int x, int y) : base(image, x, y, LevelContainer.CELL_SIDE_LENGTH, LevelContainer.CELL_SIDE_LENGTH)
@@ -89,6 +90,12 @@ namespace PASS4
         {
             InvokeDeleteReady(gem);
             CollideWithGem.Invoke();
+        }
+
+        public override void CollideWith(Key key, IEnumerable<Side> sides)
+        {
+            InvokeDeleteReady(key);
+            CollideWithKey.Invoke();
         }
     }
 }

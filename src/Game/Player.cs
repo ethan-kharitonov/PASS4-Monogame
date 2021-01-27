@@ -21,7 +21,7 @@ namespace PASS4
 
         private float gravity = 1f;
         private float xSpeed = 3f;
-        private float initalJumpSpeed = -11.5f;
+        private float initalJumpSpeed = -11f;
 
         private float xTargetPosition;
         private float xTargetVelocity = 0;
@@ -209,6 +209,11 @@ namespace PASS4
 
         public override void CollideWith(Door door, IEnumerable<Side> sides)
         {
+            if (sides.Contains(Side.Bottom))
+            {
+                onGround = true;
+            }
+
             if (KeyCount > 0)
             {
                 door.WalkThrough();
@@ -221,5 +226,8 @@ namespace PASS4
         }
 
         public void AddGem() => ++GemCount;
+
+        public void AddKey() => ++KeyCount;
+
     }
 }

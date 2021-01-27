@@ -75,10 +75,6 @@ namespace PASS4
         public static void UpdateKeyBoard()
         {
             List<Keys> keysPressedThisFrame = Keyboard.GetState().GetPressedKeys().ToList();
-            if (keysPressedThisFrame.Count() != 0)
-            {
-
-            }
             keysReleasedThisFrame = keysPressedLastFrame.Where(k => !keysPressedThisFrame.Contains(k)).ToList();
 
             keysPressedLastFrame = keysPressedThisFrame;

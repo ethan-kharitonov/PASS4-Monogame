@@ -10,7 +10,7 @@ namespace PASS4
         {
             public int TotalScore = 0;
             public int TotalTime = 0;
-            public LevelResult[] LevelResults = new LevelResult[2];
+            public LevelResult[] LevelResults = new LevelResult[LevelContainer.NUM_LEVELS];
         }
 
         public class LevelResult
@@ -39,8 +39,8 @@ namespace PASS4
 
         public static void LoadContent()
         {
-            LevelContainer.Instance.RunComplete += m => InputMenu.Instance.StartInputProcess(m);
-            LevelContainer.Instance.AllLevelsComplete += () => InputMenu.Instance.WaitForEnterThenLeave();
+            LevelContainer.Instance.RunComplete += m => InputMenu.Instance.ShowResultsForRound(m);
+            LevelContainer.Instance.AllLevelsComplete += () => InputMenu.Instance.ShowResultsAllLevelsComplete();
 
             InputMenu.Instance.CommandReadingStarting += () => LevelContainer.Instance.ReStartLevel();
 
