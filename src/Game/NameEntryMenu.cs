@@ -15,7 +15,7 @@ namespace PASS4
         private const int MAX_NAME_LENGTH = 25;
 
         private static Texture2D nameEntryBg;
-        private static Rectangle nameEntryBox = new Rectangle(Main.WIDTH / 2 - 150, Main.HEIGHT / 2 - 50, 300, 0);
+        private static Rectangle nameEntryBox = new Rectangle(Main.WIDTH / 2 - 150, Main.HEIGHT / 2 - 50, 300, 80);
 
         private static Texture2D bgImg;
         private static Rectangle bgBox = new Rectangle(0, 0, Main.WIDTH, Main.HEIGHT);
