@@ -268,50 +268,90 @@ namespace PASS4
             return new RayCollisionInfo(false);
         }
 
+        /// <summary>
+        /// Rotates a line 90 degrees around (0, 0) by rotating both its points by 90 degrees
+        /// </summary>
+        /// <param name="line">The line to rotate</param>
+        /// <returns>The rotated line</returns>
         public static Line RotateLine90DegreesCounterClockwise(Line line)
             => new Line(Rotate90DegreesCounterClockwise(line.Start), Rotate90DegreesCounterClockwise(line.End));
 
+        /// <summary>
+        /// Checks if a point is on a line
+        /// </summary>
+        /// <param name="point">The point</param>
+        /// <param name="line">The line</param>
+        /// <returns>True if point is on the line, false otherwise</returns>
         public static bool IsPointOnLine(Vector2 point, Line line)
             => IsBetween(line.Start.X, point.X, line.End.X) && IsBetween(line.Start.Y, point.Y, line.End.Y);
 
+        /// <summary>
+        /// Checks if a given value is between two other values
+        /// </summary>
+        /// <param name="a">A boundry</param>
+        /// <param name="value">The value in the middle</param>
+        /// <param name="b">A boundry</param>
+        /// <returns>True if it is between, false otherwise</returns>
         public static bool IsBetween(float a, float value, float b)
             => Math.Min(a, b) <= value && value <= Math.Max(a, b);
 
+        /// <summary>
+        /// Rotates a point 90 degrees around (0, 0)
+        /// </summary>
+        /// <param name="point">The point to rotate</param>
+        /// <returns>The rotated point</returns>
         public static Vector2 Rotate90DegreesCounterClockwise(Vector2 point) => new Vector2(-point.Y, point.X);
 
+        /// <summary>
+        /// Rotates a point a point -90 degrees around (0, 0)
+        /// </summary>
+        /// <param name="point">The point to rotate</param>
+        /// <returns>The rotated point</returns>
         public static Vector2 Rotate90DegreesClockwise(Vector2 point) => new Vector2(point.Y, -point.X);
 
+        /// <summary>
+        /// Checks if a point is inside (not on) the rectangle
+        /// </summary>
+        /// <param name="point">The point</param>
+        /// <param name="box">The rectangle</param>
+        /// <returns>True if the point is inside, false otherwise</returns>
         public static bool IsPointInsideRectangle(Vector2 point, Rectangle box)
             => box.Left < point.X && point.X < box.Right && box.Top < point.Y && point.Y < box.Bottom;
 
-        public static Texture2D GetRectTexture(int width, int height, Color color)
-        {
-            rect = new Texture2D(graphics.GraphicsDevice, width, height);
-            data = new Color[width * height];
-            for (int i = 0; i < data.Length; ++i)
-            {
-                data[i] = color;
-            }
-
-            rect.SetData(data);
-
-            return rect;
-        }
-
+        /// <summary>
+        /// Yields the four vertecies of a rectangle
+        /// </summary>
+        /// <param name="box">The rectangle</param>
+        /// <returns>An Ienumerable containing his vertacies</returns>
         public static IEnumerable<Vector2> GetVertecies(Rectangle box)
         {
+            //Alternate adding the rectangles width and height to his position
             for (int c = 0; c < 2; ++c)
             {
                 for (int r = 0; r < 2; ++r)
                 {
+                    //Calculate and yield the vertex
                     yield return new Vector2(box.Location.X + c * box.Width, box.Location.Y + r * box.Height);
                 }
             }
         }
 
+        /// <summary>
+        /// Checks ig a given point is inside or on a given rectanle
+        /// </summary>
+        /// <param name="point">The point</param>
+        /// <param name="box">The rectangle</param>
+        /// <returns>True if it is inside or on the rectangle, false otherwise</returns>
         public static bool IsPointInOrOnRectangle(Vector2 point, Rectangle box)
             => IsBetween(box.Left, point.X, box.Right) && IsBetween(box.Top, point.Y, box.Bottom);
 
+        /// <summary>
+        /// Clamps a value between two other numbers
+        /// </summary>
+        /// <param name="min">A boundry</param>
+        /// <param name="value">The middle value</param>
+        /// <param name="max">A boundry</param>
+        /// <returns>The clamped value</returns>
         public static float Clamp(float min, float value, float max)
             => Math.Max(Math.Min(min, max), Math.Min(value, Math.Max(min, max)));
 

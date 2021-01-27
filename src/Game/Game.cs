@@ -39,7 +39,9 @@ namespace PASS4
 
         public static void LoadContent()
         {
-            LevelContainer.Instance.RunComplete += m => InputMenu.Instance.ShowResultsForRound(m);
+            LevelContainer.Instance.RunCompleteFailed += m => InputMenu.Instance.ShowResultsForRoundFailed(m);
+            LevelContainer.Instance.RunCompleteSuccess += li => InputMenu.Instance.ShowResultsForRoundSuccess(li);
+
             LevelContainer.Instance.AllLevelsComplete += lr => InputMenu.Instance.ShowResultsAllLevelsComplete(lr);
 
             InputMenu.Instance.CommandReadingStarting += () => LevelContainer.Instance.ReStartLevel();

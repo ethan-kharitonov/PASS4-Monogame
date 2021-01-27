@@ -143,6 +143,7 @@ namespace PASS4
         private Action ActionOnEnter;
 
         private FinalResult finalResults = null;
+        private LevelResult levelResults = null;
 
         private InputMenu()
         {
@@ -335,6 +336,12 @@ namespace PASS4
                             DrawOnLine($"Total Score: {finalResults.LevelResults[i].Score}", i + 1, false);
                         }
                     }
+                    else
+                    {
+                        DrawOnLine($"Total Time: {levelResults.Time}",2);
+                        DrawOnLine($"Total Score: {levelResults.Score}", 2, false);
+
+                    }
 
                     break;
             }
@@ -344,9 +351,14 @@ namespace PASS4
 
         public int GetMaxY() => screen.GetMaxY();
 
-        public void ShowResultsForRound(string message)
+        public void ShowResultsForRoundFailed(string message)
         {
             inputMessage = message;
+            FinishRound();
+        }
+
+        private void FinishRound()
+        {
             stage = Stage.Results;
             waitingForEnter = true;
             ActionOnEnter = () =>
@@ -358,6 +370,13 @@ namespace PASS4
                 CommandReadingStarting.Invoke();
                 commandArrow = string.Empty;
             };
+        }
+
+        public void ShowResultsForRoundSuccess(LevelResult levelResults)
+        {
+            FinishRound();
+            inputMessage = "Success! You've reached the goal : Press ENTER to continue to the next level.";
+            this.levelResults = levelResults;
         }
 
         public void ShowResultsAllLevelsComplete(FinalResult finalResults)

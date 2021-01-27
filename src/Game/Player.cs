@@ -194,6 +194,10 @@ namespace PASS4
 
         public override void CollideWith(Gem gem, IEnumerable<Side> sides)
         {
+            if(Velocity.Y != 0)
+            {
+                return;
+            }
             lastCollidedGem = gem;
         }
 
@@ -204,6 +208,10 @@ namespace PASS4
 
         public override void CollideWith(Key key, IEnumerable<Side> sides)
         {
+            if (Velocity.Y != 0)
+            {
+                return;
+            }
             lastCollectedKey = key;
         }
 

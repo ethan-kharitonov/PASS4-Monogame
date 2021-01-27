@@ -35,7 +35,9 @@ namespace PASS4
         private FinalResult finalResult = new FinalResult();
 
         public event Action ExecutingNextCommand;
-        public event Action<string> RunComplete;
+        public event Action<string> RunCompleteFailed;
+        public event Action<LevelResult> RunCompleteSuccess;
+
         public event Action<FinalResult> AllLevelsComplete;
 
         public Action<int, int> KeysAndGemsCounted;
@@ -120,7 +122,7 @@ namespace PASS4
                     {
                         if (player.GemCount != numGems)
                         {
-                            RunComplete.Invoke("You did not collect all the gems : press ENTER to try again.");
+                            RunCompleteFailed.Invoke("You did not collect all the gems : press ENTER to try again.");
                         }
                         else
                         {
@@ -136,7 +138,7 @@ namespace PASS4
                             }
                             else
                             {
-                                RunComplete.Invoke("Success! You've reached the goal : Press ENTER to continue to the next level.");
+                                RunCompleteSuccess.Invoke(finalResult.LevelResults[curLevel - 1]);/*"Success! You've reached the goal : Press ENTER to continue to the next level.");*/
 
                                 ++curLevel;
                                 startingNewLevel = true;
@@ -145,7 +147,7 @@ namespace PASS4
                     }
                     else
                     {
-                        RunComplete.Invoke("A'w Shuc'ks Buddy ol Pal! Failed to reach goal : press ENTER to try again.");
+                        RunCompleteFailed.Invoke("A'w Shuc'ks Buddy ol Pal! Failed to reach goal : press ENTER to try again.");
                     }
                 }
             }
@@ -397,7 +399,7 @@ namespace PASS4
             {
                 commands = new Queue<char>();
                 GamePaused = true;
-                RunComplete.Invoke("The player hit a spike : press ENTER to try again.");
+                RunCompleteFailed.Invoke("The player hit a spike : press ENTER to try again.");
             };
 
             player.KeyCollected += nk => playerKeyCollected.Invoke(nk);
