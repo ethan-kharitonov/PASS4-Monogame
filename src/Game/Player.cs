@@ -69,7 +69,7 @@ namespace PASS4
 
         public override void Update()
         {
-            if (TruePosition.Y % GameView.CELL_SIDE_LENGTH != 0 && Velocity.Y != gravity)
+            if (TruePosition.Y % LevelContainer.CELL_SIDE_LENGTH != 0 && Velocity.Y != gravity)
             {
                 onGround = false;
             }
@@ -104,7 +104,7 @@ namespace PASS4
         {
             if (TruePosition.X % 45 != 0)
             {
-                TruePosition = new Vector2((float)Math.Round(TruePosition.X / GameView.CELL_SIDE_LENGTH) * GameView.CELL_SIDE_LENGTH, TruePosition.Y);
+                TruePosition = new Vector2((float)Math.Round(TruePosition.X / LevelContainer.CELL_SIDE_LENGTH) * LevelContainer.CELL_SIDE_LENGTH, TruePosition.Y);
             }
 
             movingOnY = false;
@@ -115,23 +115,23 @@ namespace PASS4
             {
                 case 'A':
                     Velocity.X = -xSpeed;
-                    xTargetPosition = TruePosition.X - GameView.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = TruePosition.X - LevelContainer.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case 'D':
                     Velocity.X = xSpeed;
-                    xTargetPosition = TruePosition.X + GameView.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = TruePosition.X + LevelContainer.CELL_SIDE_LENGTH;//((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'E':
                     movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = xSpeed;
-                    xTargetPosition = TruePosition.X + GameView.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
+                    xTargetPosition = TruePosition.X + LevelContainer.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) + 2) * MainGame.CELL_SIDE_LENGTH - width;
                     break;
                 case 'Q':
                     movingOnY = true;
                     Velocity.Y = initalJumpSpeed;
                     xTargetVelocity = -xSpeed;
-                    xTargetPosition = TruePosition.X - GameView.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
+                    xTargetPosition = TruePosition.X - LevelContainer.CELL_SIDE_LENGTH; //((int)(TruePosition.X / MainGame.CELL_SIDE_LENGTH) - 1) * MainGame.CELL_SIDE_LENGTH;
                     break;
                 case '+':
                     LoadNextCommand('D');

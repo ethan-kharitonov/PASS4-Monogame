@@ -2,15 +2,23 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace PASS4
 {
-    class GameView : ISection
+    class LevelContainer : ISection
     {
-        public static readonly GameView Instance = new GameView();
+        public static readonly LevelContainer Instance = new LevelContainer();
+
+        public event Action ExecutingNextCommand;
+        public event Action<string> RunComplete;
+        public event Action AllLevelsComplete;
+
+        public Action<int, int> KeysAndGemsCounted;
+        public Action<int> playerKeyCollected;
+        public Action<int> playerGemCollected;
 
         private static Texture2D backgroundImg;
 
@@ -32,25 +40,20 @@ namespace PASS4
 
         private Screen screen = new Screen(new Point(0, 0), WIDTH, HEIGHT);
 
-        public delegate void Notify();
-        public event Notify ExecutingNextCommand;
-
-        public event Action<string, bool> RunComplete;
-
         private Queue<char> commands = new Queue<char>();
 
         private const string LEVEL_PATH_SUFFIX = "../../../Levels/Level";
-        private int curLevel = 0;
-        private const int NUM_LEVELS = 2;
+        private int curLevel = 1;
 
-        public Action<int, int> KeysAndGemsCounted;
+        private const int NUM_LEVELS = 2;
+        private int[] levelTimes = new int[NUM_LEVELS];
+
         private int numKeys = 0;
         private int numGems = 0;
 
-        public Action<int> playerKeyCollected;
-        public Action<int> playerGemCollected;
+        public static Stopwatch timer = new Stopwatch();
 
-        private GameView()
+        private LevelContainer()
         {
 
         }
@@ -61,6 +64,7 @@ namespace PASS4
             backgroundImg = Helper.LoadImage("Images/backGround");
 
             LoadLevelFromFile($"{LEVEL_PATH_SUFFIX}{curLevel}.txt");
+            timer.Start();
         }
         public void LoadCommands(Queue<char> commands)
         {
@@ -74,23 +78,35 @@ namespace PASS4
             {
                 player.LoadNextCommand(commands.Dequeue());
                 ExecutingNextCommand.Invoke();
+
                 if (commands.IsEmpty)
                 {
                     if (player.Box.Location == flagPos)
                     {
                         if (player.GemCount != numGems)
                         {
-                            RunComplete.Invoke("You did not collect all the gems : press ENTER to try again.", false);
+                            RunComplete.Invoke("You did not collect all the gems : press ENTER to try again.");
                         }
                         else
                         {
-                            ++curLevel;
-                            RunComplete.Invoke("Success! You've reached the goal : Press ENTER to continue.", curLevel == NUM_LEVELS);
+                            timer.Stop();
+                            if(curLevel == NUM_LEVELS)
+                            {
+                                AllLevelsComplete.Invoke();
+                            }
+                            else
+                            {
+                                RunComplete.Invoke("Success! You've reached the goal : Press ENTER to continue to the next level.");
+
+                                levelTimes[curLevel - 1] = timer.Elapsed.Milliseconds;
+                                ++curLevel;
+                            }
+
                         }
                     }
                     else
                     {
-                        RunComplete.Invoke("Failed to reach goal : press ENTER to try again.", false);
+                        RunComplete.Invoke("Failed to reach goal : press ENTER to try again.");
                     }
                 }
             }
@@ -328,7 +344,7 @@ namespace PASS4
             player.HitSpike += () =>
             {
                 commands = new Queue<char>();
-                RunComplete.Invoke("The player hit a spike : press ENTER to try again.", false);
+                RunComplete.Invoke("The player hit a spike : press ENTER to try again.");
             };
 
             player.KeyCollected += nk => playerKeyCollected.Invoke(nk);

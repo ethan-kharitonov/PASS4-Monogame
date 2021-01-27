@@ -18,7 +18,7 @@ namespace PASS4
         public Gem(int x, int y) : base(image, x, y, width, height)
         {
             isCollidable = false;
-            TruePosition = new Vector2(x + GameView.CELL_SIDE_LENGTH / 2 - width / 2, y + GameView.CELL_SIDE_LENGTH / 2 - height / 2);
+            TruePosition = new Vector2(x + LevelContainer.CELL_SIDE_LENGTH / 2 - width / 2, y + LevelContainer.CELL_SIDE_LENGTH / 2 - height / 2);
         }
 
         public override void Update()

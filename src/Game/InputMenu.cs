@@ -77,10 +77,22 @@ namespace PASS4
 
         private enum Stage
         {
+            Waiting,
             Input,
             Proccessing,
-            Waiting
+            WaitingForEnter
         }
+
+        /* private enum EnterAction
+         {
+             None,
+             StartInput,
+             GoToNameEntry
+         }
+
+         private EnterAction enterAction = EnterAction.None;*/
+
+        private bool OnEnterGoToMenu = false;
 
         private Stage stage = Stage.Input;
         public static readonly InputMenu Instance = new InputMenu();
@@ -96,21 +108,17 @@ namespace PASS4
 
         private const int HEIGHT = 150;
 
-        public delegate void TakeCommands(Queue<char> commands);
-        public event TakeCommands CommandReadingComplete;
+        public event Action<Queue<char>> CommandReadingComplete;
 
-        public delegate void Notify();
-        public event Notify CommandReadingStarting;
+        public event Action CommandReadingStarting;
 
-        private bool inputFailed = false;
+        private bool inputReadingRestarting = false;
 
         private bool showLegend = false;
         public bool ShowLegend => showLegend;
 
         private string numKeysDisplay;
         private string numGemsDisplay;
-
-        private bool lastLevelComplete = false;
 
         public event Action PlayerReadyToExistMainGame;
 
@@ -120,17 +128,32 @@ namespace PASS4
         private Point margins = new Point(10, 10);
         private int lineSpacing = 5;
 
+        private Keys[] validKeys = new[]
+        {
+            Keys.A,
+            Keys.D,
+            Keys.S,
+            Keys.F,
+            Keys.Q,
+            Keys.E,
+        };
+
+        Predicate<Keys> isKeyValidDigit = key =>
+        {
+            int keyNumber = Convert.ToInt32(key) - '0';
+            return 0 < keyNumber && keyNumber < 10;
+        };
+
         private InputMenu()
         {
         }
 
-        private Screen screen = new Screen(new Point(0, GameView.HEIGHT), GameView.WIDTH, HEIGHT);
+        private Screen screen = new Screen(new Point(0, LevelContainer.HEIGHT), LevelContainer.WIDTH, HEIGHT);
         
         public void SetNumKeys(int totalNumKeys, int totalnumGems)
         {
             numKeysDisplay = $"0/{totalNumKeys} Keys";
             numGemsDisplay = $"0/{totalnumGems} Gems";
-
         }
 
         public void UpdateNumCollectedKeys(int numCollectedKeys)
@@ -150,124 +173,76 @@ namespace PASS4
 
         public void Update()
         {
+            if (Helper.KeysReleasedThisFrame.Contains(Keys.L))
+            {
+                Helper.KeysReleasedThisFrame.Remove(Keys.L);
+                showLegend = !showLegend;
+            }
             switch (stage)
             {
-                case Stage.Input:
-                    if (Helper.KeysReleasedThisFrame.Contains(Keys.L))
+                case Stage.WaitingForEnter:
+                    if (Helper.KeysReleasedThisFrame.Contains(Keys.Enter))
                     {
-                        Helper.KeysReleasedThisFrame.Remove(Keys.L);
-                        showLegend = !showLegend;
-                    }
+                        stage = Stage.Input;
 
-                    if (inputFailed)
-                    {
-                        if (Helper.KeysReleasedThisFrame.Contains(Keys.Enter))
-                        {
-                            Helper.KeysReleasedThisFrame.Remove(Keys.Enter);
-                            
-                            if (lastLevelComplete)
-                            {
-                                PlayerReadyToExistMainGame.Invoke();
-                            }
-                            else
-                            {
-                                input = string.Empty;
-                                inputMessage = string.Empty;
-                                commandArrow = string.Empty;
-                                CommandReadingStarting.Invoke();
-                                progressBar.Reset();
-                                numCommands = 0;
-                            }
-                            inputFailed = false;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        input = string.Empty;
+                        inputMessage = string.Empty;
+                        commandArrow = string.Empty;
+                        CommandReadingStarting.Invoke();
+                        progressBar.Reset();
+                        numCommands = 0;
+                        commandOrder.Clear();
 
-                    }
-
-                    for (int i = Helper.KeysReleasedThisFrame.Count - 1; i >= 0; --i)
-                    {
-                        Keys key = Helper.KeysReleasedThisFrame[i];
-                        if (numCommands >= MAX_COMMANDS && !(key == Keys.Enter || key == Keys.Back))
+                        if (OnEnterGoToMenu)
                         {
-                            continue;
+                            PlayerReadyToExistMainGame.Invoke();
                         }
-
-                        Helper.KeysReleasedThisFrame.Remove(key);
-                        if (key == Keys.Back)
-                        {
-                            if (input.Count() == 0)
-                            {
-                                continue;
-                            }
-
-                            input = input.Substring(0, input.Count() - 1);
-                        }
-                        else if (key == Keys.OemPlus)
-                        {
-                            input += "+";
-                        }
-                        else if (key == Keys.OemMinus)
-                        {
-                            input += "-";
-                        }
-                        else if (key == Keys.Enter)
-                        {
-                            //input = "s4qcfs5dfeeces8dfeedcqs6afs4qfa+eecedc+aqa+++eec++s4af+++dee".ToUpper();
-                            stage = Stage.Proccessing;
-                            --numCommands;
-                        }
-                        else
-                        {
-                            if (key.ToString().Count() > 1)
-                            {
-                                int num = Convert.ToInt32(key.ToString()[1]) - '0';
-                                if (0 < num && num < 10)
-                                {
-                                    input += key.ToString()[1];
-                                }
-                                continue;
-                            }
-
-                            input += key.ToString();
-                        }
-                        numCommands = input.Length;
                     }
                     break;
-                case Stage.Proccessing:
-                    try
+
+                case Stage.Input:
+                    input = Helper.UpdateStringWithInput(input, key => validKeys.Contains(key) || isKeyValidDigit(key));
+                    input = Helper.TrimString(input, MAX_COMMANDS);
+
+                    numCommands = input.Length;
+
+                    if (Helper.KeysReleasedThisFrame.Contains(Keys.Enter))
                     {
-                        Queue<char> commands = ReadPlayerInput(input);
+                        --numCommands;
+                        stage = Stage.Proccessing;
+                    }
+
+                    break;
+                case Stage.Proccessing:
+                    try 
+                    {
+                        Queue<char> commands = ConvertInputIntoCommands(input);
                         inputMessage = "Passed";
 
                         CommandReadingComplete.Invoke(commands);
 
                         input += "~";
+                        commandOrder.Enqueue(input.Length - 1);
+
                         progressBar.FullAmount = commandOrder.Count;
                         curCommandNumber = 0;
-                        commandOrder.Enqueue(input.Length - 1);
                         stage = Stage.Waiting;
                     }
                     catch (Exception e)
                     {
                         inputMessage = e.Message + " : Please press ENTER to try again.";
-                        stage = Stage.Input;
-                        inputFailed = true;
+                        stage = Stage.WaitingForEnter;
                     }
-
-                    break;
-                case Stage.Waiting:
                     break;
             }
         }
 
-        public Queue<char> ReadPlayerInput(string input)
+        public Queue<char> ConvertInputIntoCommands(string input)
         {
             Queue<char> commands = new Queue<char>();
             LoopInfo loopInfo = new LoopInfo();
-            commandOrder = new Queue<int>();
+            commandOrder.Clear();
+
             for (int i = 0; i < input.Length; ++i)
             {
                 if (i < input.Length && input[i] == 'F')
@@ -341,7 +316,7 @@ namespace PASS4
 
         public void Draw()
         {
-            screen.Draw(Helper.GetRectTexture(GameView.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, GameView.WIDTH, HEIGHT));
+            screen.Draw(Helper.GetRectTexture(LevelContainer.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, LevelContainer.WIDTH, HEIGHT));
 
             DrawOnLine($"Command: {input}", 0);
 
@@ -354,6 +329,9 @@ namespace PASS4
             DrawOnLine(numKeysDisplay, 3);
             DrawOnLine(numGemsDisplay, 3, false);
 
+            DrawOnLine($"Time: {LevelContainer.timer.ElapsedMilliseconds}", 4, false);
+
+
             progressBar.Draw(screen);
         }
 
@@ -361,13 +339,19 @@ namespace PASS4
 
         public int GetMaxY() => screen.GetMaxY();
 
-        public void StartInputProcess(string message, bool lastLevelComplete)
+        public void StartInputProcess(string message)
         {
+            inputReadingRestarting = true;
             inputMessage = message;
-            inputFailed = true;
-            stage = Stage.Input;
-            commandOrder = new Queue<int>();
-            this.lastLevelComplete = lastLevelComplete;
+            stage = Stage.WaitingForEnter;
+        }
+
+        public void WaitForEnterThenLeave()
+        {
+            stage = Stage.WaitingForEnter;
+            OnEnterGoToMenu = true;
+
+            inputMessage = "You beat all the levels! : Press ENTER to enter your name and save.";
         }
 
         public void ShowNextCommand()
@@ -384,7 +368,7 @@ namespace PASS4
         }
 
         private void DrawOnLine(string text, int lineNum, bool leftToRight = true) 
-            => screen.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : GameView.WIDTH - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
+            => screen.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : LevelContainer.WIDTH - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
 
         private void DrawOnLine(string text, int lineNum, int xPosition)
             => screen.DrawText(Helper.InputFont, text, new Vector2(xPosition, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);

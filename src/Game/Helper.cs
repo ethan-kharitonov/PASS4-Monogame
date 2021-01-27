@@ -29,27 +29,42 @@ namespace PASS4
 
         public static List<Keys> KeysReleasedThisFrame => keysReleasedThisFrame;
 
-        public static string UpdateStringWithInput(string text, int max)
+        public static string UpdateStringWithInput(string text, Predicate<Keys> predicate)
         {
-            for (int i = KeysReleasedThisFrame.Count - 1; i >= 0; --i)
+            foreach (Keys key in KeysReleasedThisFrame)
             {
-                if (KeysReleasedThisFrame[i].ToString().Length == 1 && text.Length <= max)
+                if (key.ToString().Length == 1 && predicate(key))
                 {
-                    text += KeysReleasedThisFrame[i].ToString();
+                    text += key.ToString();
                 }
-                else if (KeysReleasedThisFrame[i] == Keys.Back)
+
+                if (key == Keys.OemPlus)
                 {
-                    text = text.Length == 0 ? string.Empty : text.Substring(0, text.Length - 1);
+                    text += '+';
+                }
+                else if (key == Keys.OemMinus)
+                {
+                    text += '-';
+                }
+                else if (key == Keys.Back)
+                {
+                    text = text.Length <= 1 ? string.Empty : text.Substring(0, text.Length - 1);
                 }
             }
 
 
             return text;
         }
+
+        public static string UpdateStringWithInput(string text) 
+            => UpdateStringWithInput(text, k => true);
+
+        public static string TrimString(string text, int maxChars) 
+            => text.Length <= maxChars ? text : text.Substring(0, maxChars);
         public static void UpdateKeyBoard()
         {
             List<Keys> keysPressedThisFrame = Keyboard.GetState().GetPressedKeys().ToList();
-            if(keysPressedThisFrame.Count() != 0)
+            if (keysPressedThisFrame.Count() != 0)
             {
 
             }

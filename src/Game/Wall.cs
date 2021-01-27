@@ -9,7 +9,7 @@ namespace PASS4
     {
         private static readonly Texture2D image = Helper.LoadImage("Images/Wall");
 
-        public Wall(int x, int y) : base(image, x, y, GameView.CELL_SIDE_LENGTH, GameView.CELL_SIDE_LENGTH)
+        public Wall(int x, int y) : base(image, x, y, LevelContainer.CELL_SIDE_LENGTH, LevelContainer.CELL_SIDE_LENGTH)
         {
         }
 

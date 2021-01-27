@@ -8,7 +8,7 @@ namespace PASS4
     class Spike : GameObject
     {
         private static readonly Texture2D image = Helper.LoadImage("Images/SpikeImg");
-        public Spike(int x, int y) : base(image, x, y, GameView.CELL_SIDE_LENGTH, GameView.CELL_SIDE_LENGTH)
+        public Spike(int x, int y) : base(image, x, y, LevelContainer.CELL_SIDE_LENGTH, LevelContainer.CELL_SIDE_LENGTH)
         {
         }
 

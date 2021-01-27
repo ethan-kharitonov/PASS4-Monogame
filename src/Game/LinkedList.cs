@@ -27,6 +27,8 @@ namespace PASS4
         private Node head;
         public T Head => head != null ? head.Data : throw new NullReferenceException("Head was null");
 
+        public void Clear() => head = null;
+
         public bool IsEmpty => head == null;
         private int count = 0;
         public void AddToTail(T data)

@@ -37,7 +37,9 @@ namespace PASS4
 
         public static void Update()
         {
-            name = Helper.UpdateStringWithInput(name, MAX_NAME_LENGTH);
+            name = Helper.UpdateStringWithInput(name);
+            name = Helper.TrimString(name, MAX_NAME_LENGTH);
+
             menuButton.Update();
         }
 

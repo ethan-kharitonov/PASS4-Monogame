@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PASS4
 {
@@ -14,24 +12,28 @@ namespace PASS4
 
         private static ISection[] sections = new ISection[]
         {
-            GameView.Instance,
+            LevelContainer.Instance,
             InputMenu.Instance
         };
 
         public static void LoadContent()
         {
-            GameView.Instance.RunComplete += (m, l) => InputMenu.Instance.StartInputProcess(m, l);
-            InputMenu.Instance.CommandReadingComplete += q => GameView.Instance.LoadCommands(q);
+            LevelContainer.Instance.RunComplete += m => InputMenu.Instance.StartInputProcess(m);
+            LevelContainer.Instance.AllLevelsComplete += () => InputMenu.Instance.WaitForEnterThenLeave();
 
-            GameView.Instance.ExecutingNextCommand += () => InputMenu.Instance.ShowNextCommand();
+            InputMenu.Instance.CommandReadingStarting += () => LevelContainer.Instance.ReStartLevel();
 
-            InputMenu.Instance.CommandReadingStarting += () => GameView.Instance.ReStartLevel();
+            InputMenu.Instance.CommandReadingComplete += q => LevelContainer.Instance.LoadCommands(q);
+            LevelContainer.Instance.ExecutingNextCommand += () => InputMenu.Instance.ShowNextCommand();
 
-            GameView.Instance.KeysAndGemsCounted += (nk, ng) => InputMenu.Instance.SetNumKeys(nk, ng);
-            GameView.Instance.playerKeyCollected += nk => InputMenu.Instance.UpdateNumCollectedKeys(nk);
-            GameView.Instance.playerGemCollected += ng => InputMenu.Instance.UpdateNumCollectedGems(ng);
+            LevelContainer.Instance.KeysAndGemsCounted += (nk, ng) => InputMenu.Instance.SetNumKeys(nk, ng);
+            LevelContainer.Instance.playerKeyCollected += nk => InputMenu.Instance.UpdateNumCollectedKeys(nk);
+            LevelContainer.Instance.playerGemCollected += ng => InputMenu.Instance.UpdateNumCollectedGems(ng);
 
             InputMenu.Instance.PlayerReadyToExistMainGame += () => AllLevelsComplete.Invoke();
+
+
+
 
             foreach (ISection section in sections)
             {

@@ -17,9 +17,8 @@ namespace PASS4
 
         public T Peek => items.Head;
 
-        public override string ToString()
-        {
-            return items.ToString();
-        }
+        public override string ToString() => items.ToString();
+
+        public void Clear() => items.Clear();
     }
 }

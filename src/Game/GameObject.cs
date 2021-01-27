@@ -22,7 +22,7 @@ namespace PASS4
         protected bool isCollidable = true;
         public bool IsCollidable => isCollidable;
 
-        public Point TopLeftGridPoint => new Point(box.X / GameView.CELL_SIDE_LENGTH * GameView.CELL_SIDE_LENGTH, box.Y / GameView.CELL_SIDE_LENGTH * GameView.CELL_SIDE_LENGTH) + new Point(1);
+        public Point TopLeftGridPoint => new Point(box.X / LevelContainer.CELL_SIDE_LENGTH * LevelContainer.CELL_SIDE_LENGTH, box.Y / LevelContainer.CELL_SIDE_LENGTH * LevelContainer.CELL_SIDE_LENGTH) + new Point(1);
 
         public GameObject(Texture2D image, int x, int y, int width, int height)
         {
