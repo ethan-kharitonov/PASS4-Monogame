@@ -46,13 +46,14 @@ namespace PASS4
         private int curLevel = 1;
 
         private const int NUM_LEVELS = 2;
-        private int[] levelTimes = new int[NUM_LEVELS];
 
         private int numKeys = 0;
         private int numGems = 0;
 
         public static Stopwatch timer = new Stopwatch();
         private bool startingNewLevel = true;
+
+        private int numCommands;
 
         private LevelContainer()
         {
@@ -67,7 +68,11 @@ namespace PASS4
             LoadLevelFromFile($"{LEVEL_PATH_SUFFIX}{curLevel}.txt");
             timer.Start();
         }
-        public void LoadCommands(Queue<char> commands) => this.commands = commands;
+        public void LoadCommands(Queue<char> commands)
+        {
+            this.commands = commands;
+            numCommands = commands.Count - 1;
+        }
 
         public void Update()
         {
@@ -87,6 +92,11 @@ namespace PASS4
                         else
                         {
                             timer.Stop();
+
+                            Game.FinalGameResult.LevelResults[curLevel - 1] = new Game.LevelResult(timer.Elapsed.Milliseconds + numCommands * 100, timer.Elapsed.Seconds);
+                            Game.FinalGameResult.TotalTime += Game.FinalGameResult.LevelResults[curLevel - 1].Time;
+                            Game.FinalGameResult.TotalScore += Game.FinalGameResult.LevelResults[curLevel - 1].Score;
+
                             if(curLevel == NUM_LEVELS)
                             {
                                 AllLevelsComplete.Invoke();
@@ -95,11 +105,9 @@ namespace PASS4
                             {
                                 RunComplete.Invoke("Success! You've reached the goal : Press ENTER to continue to the next level.");
 
-                                levelTimes[curLevel - 1] = timer.Elapsed.Milliseconds;
                                 ++curLevel;
                                 startingNewLevel = true;
                             }
-
                         }
                     }
                     else

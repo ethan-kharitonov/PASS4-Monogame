@@ -22,6 +22,8 @@ namespace PASS4
             this.height = height;
         }
 
+        public Screen(Point origin) => this.origin = origin;
+
         public void Draw(Texture2D image, Rectangle box)
         {
             box.Location += origin;

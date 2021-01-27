@@ -6,6 +6,27 @@ namespace PASS4
 {
     static class Game
     {
+        public class FinalResult
+        {
+            public int TotalScore = 0;
+            public int TotalTime = 0;
+            public LevelResult[] LevelResults = new LevelResult[2];
+        }
+
+        public class LevelResult
+        {
+            public int Score;
+            public int Time;
+
+            public LevelResult(int score, int time)
+            {
+                Score = score;
+                Time = time;
+            }
+        }
+
+        public static FinalResult FinalGameResult = new FinalResult();
+
         private static Texture2D legend;
 
         public static event Action AllLevelsComplete;
@@ -31,8 +52,6 @@ namespace PASS4
             LevelContainer.Instance.playerGemCollected += ng => InputMenu.Instance.UpdateNumCollectedGems(ng);
 
             InputMenu.Instance.PlayerReadyToExistMainGame += () => AllLevelsComplete.Invoke();
-
-
 
 
             foreach (ISection section in sections)

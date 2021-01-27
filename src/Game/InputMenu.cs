@@ -83,14 +83,7 @@ namespace PASS4
             WaitingForEnter
         }
 
-        /* private enum EnterAction
-         {
-             None,
-             StartInput,
-             GoToNameEntry
-         }
-
-         private EnterAction enterAction = EnterAction.None;*/
+        private Texture2D bgImg;
 
         private bool OnEnterGoToMenu = false;
 
@@ -172,6 +165,7 @@ namespace PASS4
         public void LoadContent()
         {
             progressBar = new Bar(new Rectangle(10, 100, 200, 30));
+            bgImg = Helper.LoadImage("Images/MenuBackground");
         }
 
         public void Update()
@@ -205,6 +199,7 @@ namespace PASS4
 
                 case Stage.Input:
                     input = string.Concat(Helper.UpdateStringWithInput(input).Where(k => validChars.Contains(k) || isCharValidDigit(k)).Take(MAX_COMMANDS));
+                    numCommands = input.Length;
 
                     if (Helper.KeysReleasedThisFrame.Contains(Keys.Enter))
                     {
@@ -318,7 +313,7 @@ namespace PASS4
 
         public void Draw()
         {
-            screen.Draw(Helper.GetRectTexture(LevelContainer.WIDTH, HEIGHT, Color.Black), new Rectangle(0, 0, LevelContainer.WIDTH, HEIGHT));
+            screen.Draw(bgImg, new Rectangle(0,0, Main.WIDTH, HEIGHT));
 
             DrawOnLine($"Command: {input}", 0);
 
