@@ -29,7 +29,7 @@ namespace PASS4
 
         private static Texture2D legend;
 
-        public static event Action AllLevelsComplete;
+        public static event Action<int> AllLevelsComplete;
 
         private static ISection[] sections = new ISection[]
         {
@@ -40,7 +40,7 @@ namespace PASS4
         public static void LoadContent()
         {
             LevelContainer.Instance.RunComplete += m => InputMenu.Instance.ShowResultsForRound(m);
-            LevelContainer.Instance.AllLevelsComplete += () => InputMenu.Instance.ShowResultsAllLevelsComplete();
+            LevelContainer.Instance.AllLevelsComplete += lr => InputMenu.Instance.ShowResultsAllLevelsComplete(lr);
 
             InputMenu.Instance.CommandReadingStarting += () => LevelContainer.Instance.ReStartLevel();
 
@@ -51,7 +51,7 @@ namespace PASS4
             LevelContainer.Instance.playerKeyCollected += nk => InputMenu.Instance.UpdateNumCollectedKeys(nk);
             LevelContainer.Instance.playerGemCollected += ng => InputMenu.Instance.UpdateNumCollectedGems(ng);
 
-            InputMenu.Instance.PlayerReadyToExistMainGame += () => AllLevelsComplete.Invoke();
+            InputMenu.Instance.PlayerReadyToExistMainGame += s => AllLevelsComplete.Invoke(s);
 
 
             foreach (ISection section in sections)

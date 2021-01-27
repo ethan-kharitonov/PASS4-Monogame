@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace PASS4
 {
@@ -21,7 +18,7 @@ namespace PASS4
             HighScores
         }
 
-        private Stage stage = Stage.Game;
+        private Stage stage = Stage.NameEntry;
 
         public const int WIDTH = 900;
         public const int HEIGHT = 555;
@@ -55,11 +52,21 @@ namespace PASS4
            
 
             Game.LoadContent();
-            Game.AllLevelsComplete += () => stage = Stage.NameEntry;
+            Game.AllLevelsComplete += score => 
+            {
+                stage = Stage.NameEntry;
+                NameEntryMenu.Start(score);
+            };
 
             NameEntryMenu.LoadContent();
             NameEntryMenu.InputComplete += () => stage = Stage.Menu;
-        }
+
+            MainMenu.playButtonPressed += () => stage = Stage.Game;
+            MainMenu.instructionsButtonPressed += () => stage = Stage.Instructions;
+            MainMenu.highScoresButtonPressed += () => stage = Stage.HighScores;
+            MainMenu.exitButtonPressed += () => Exit();
+            MainMenu.LoadContent();
+         }
 
         protected override void Update(GameTime gameTime)
         {
@@ -74,6 +81,7 @@ namespace PASS4
                     break;
 
                 case Stage.Menu:
+                    MainMenu.Update();
                     break;
 
                 case Stage.Game:
@@ -104,6 +112,7 @@ namespace PASS4
                     break;
 
                 case Stage.Menu:
+                    MainMenu.Draw();
                     break;
 
                 case Stage.Game:

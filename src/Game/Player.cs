@@ -21,7 +21,7 @@ namespace PASS4
 
         private float gravity = 1f;
         private float xSpeed = 3f;
-        private float initalJumpSpeed = -11f;
+        private float initalJumpSpeed = -10f;
 
         private float xTargetPosition;
         private float xTargetVelocity = 0;

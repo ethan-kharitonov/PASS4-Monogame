@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace PASS4
 {
@@ -22,9 +20,10 @@ namespace PASS4
 
         private static Button menuButton;
 
-        private static Screen ResultDisplay = new Screen(new Point(nameEntryBox.X - 65, nameEntryBox.Y - 15));
-        private static Point margins = new Point(10);
-        private static int lineSpacing = 10;
+        private static int score = 123;
+
+        private const string SCORE_FILE_PATH = "../../../NamesAndScores.txt";
+
         public static void LoadContent()
         {
             nameEntryBg = Helper.LoadImage("Images/NameEntryPanel");
@@ -36,7 +35,13 @@ namespace PASS4
 
             bgImg = Helper.LoadImage("Images/MenuBackground");
 
-            menuButton = new Button(new Rectangle(nameEntryBox.Left, nameEntryBox.Bottom + 25, nameEntryBox.Width, 100), () => InputComplete.Invoke());
+            menuButton = new Button(new Rectangle(nameEntryBox.Center.X - (nameEntryBox.Width - 14)/2, nameEntryBox.Top + 130, nameEntryBox.Width - 14, 100), OnButtonClick, "SAVE AND GO TO MENU");
+        }
+
+        public static void Start(int score)
+        {
+            NameEntryMenu.score = score;
+            name = string.Empty;
         }
 
         public static void Update()
@@ -53,21 +58,22 @@ namespace PASS4
             Helper.SpriteBatch.Draw(nameEntryBg, nameEntryBox, Color.White);
             Helper.SpriteBatch.DrawString(Helper.InputFont, name, nameEntryBox.Center.ToVector2() - new Vector2(0, 84) - (Helper.InputFont.MeasureString(name) * 0.5f), Color.White);
 
-            DrawOnLine($"Total Score: {Game.FinalGameResult.TotalScore}", 0);
-            DrawOnLine($"Total Time: {Game.FinalGameResult.TotalTime}", 0, false);
-
-            for (int i = 0; i < 2; ++i)
-            {
-                DrawOnLine($"Level {i}) Score: {Game.FinalGameResult.LevelResults[i].Score}", i + 1);
-                DrawOnLine($"Time: {Game.FinalGameResult.LevelResults[i].Time}", i + 1, false);
-
-            }
+            Helper.SpriteBatch.DrawString(Helper.InputFont, $"Score:", new Vector2(nameEntryBox.Left + 15, nameEntryBox.Top + 90), Color.White);
+            Helper.SpriteBatch.DrawString(Helper.InputFont, score.ToString(), new Vector2(nameEntryBox.Right - Helper.InputFont.MeasureString(score.ToString()).X - 15, nameEntryBox.Top + 90), Color.White);
 
 
             menuButton.Draw();
         }
 
-        private static void DrawOnLine(string text, int lineNum, bool leftToRight = true)
-           => ResultDisplay.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : nameEntryBox.Width - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
+        private static void OnButtonClick()
+        {
+            InputComplete.Invoke();
+            StreamWriter outFile = File.AppendText(SCORE_FILE_PATH);
+            outFile.WriteLine($"{name} : {score}");
+            outFile.Close();
+        }
+
+        //private static void DrawOnLine(string text, int lineNum, bool leftToRight = true)
+        //   => ResultDisplay.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : nameEntryBox.Width - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
     }
 }

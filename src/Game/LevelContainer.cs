@@ -8,26 +8,27 @@ using System.Linq;
 
 namespace PASS4
 {
+    public class FinalResult
+    {
+        public int TotalScore = 0;
+        public int TotalTime = 0;
+        public LevelResult[] LevelResults = new LevelResult[LevelContainer.NUM_LEVELS];
+    }
+
+    public class LevelResult
+    {
+        public int Score;
+        public int Time;
+
+        public LevelResult(int score, int time)
+        {
+            Score = score;
+            Time = time;
+        }
+    }
+
     class LevelContainer : ISection
     {
-        public class FinalResult
-        {
-            public int TotalScore = 0;
-            public int TotalTime = 0;
-            public LevelResult[] LevelResults = new LevelResult[2];
-        }
-
-        public class LevelResult
-        {
-            public int Score;
-            public int Time;
-
-            public LevelResult(int score, int time)
-            {
-                Score = score;
-                Time = time;
-            }
-        }
 
         public static readonly LevelContainer Instance = new LevelContainer();
 
@@ -35,7 +36,7 @@ namespace PASS4
 
         public event Action ExecutingNextCommand;
         public event Action<string> RunComplete;
-        public event Action AllLevelsComplete;
+        public event Action<FinalResult> AllLevelsComplete;
 
         public Action<int, int> KeysAndGemsCounted;
         public Action<int> playerKeyCollected;
@@ -64,9 +65,9 @@ namespace PASS4
         private Queue<char> commands = new Queue<char>();
 
         private const string LEVEL_PATH_SUFFIX = "../../../Levels/Level";
-        private int curLevel = 5;
+        private int curLevel = 1;
 
-        public const int NUM_LEVELS = 4;
+        public const int NUM_LEVELS = 5;
 
         private int numKeys = 0;
         private int numGems = 0;
@@ -117,13 +118,13 @@ namespace PASS4
                         {
                             timer.Stop();
 
-                            Game.FinalGameResult.LevelResults[curLevel - 1] = new Game.LevelResult(timer.Elapsed.Milliseconds + numCommands * 100, timer.Elapsed.Seconds);
-                            Game.FinalGameResult.TotalTime += Game.FinalGameResult.LevelResults[curLevel - 1].Time;
-                            Game.FinalGameResult.TotalScore += Game.FinalGameResult.LevelResults[curLevel - 1].Score;
+                            finalResult.LevelResults[curLevel - 1] = new LevelResult(timer.Elapsed.Milliseconds + numCommands * 100, timer.Elapsed.Seconds);
+                            finalResult.TotalTime += finalResult.LevelResults[curLevel - 1].Time;
+                            finalResult.TotalScore += finalResult.LevelResults[curLevel - 1].Score;
 
                             if(curLevel == NUM_LEVELS)
                             {
-                                AllLevelsComplete.Invoke();
+                                AllLevelsComplete.Invoke(finalResult);
                             }
                             else
                             {

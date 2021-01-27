@@ -112,7 +112,7 @@ namespace PASS4
         private string numKeysDisplay;
         private string numGemsDisplay;
 
-        public event Action PlayerReadyToExistMainGame;
+        public event Action<int> PlayerReadyToExistMainGame;
 
         private int numCommands = 0;
         private const int MAX_COMMANDS = 68;
@@ -141,6 +141,8 @@ namespace PASS4
 
         private bool waitingForEnter = false;
         private Action ActionOnEnter;
+
+        private FinalResult finalResults = null;
 
         private InputMenu()
         {
@@ -322,6 +324,18 @@ namespace PASS4
                     break;
                 case Stage.Results:
                     DrawOnLine($"{inputMessage}", 0);
+
+                    if(finalResults != null)
+                    {
+                        DrawOnLine($"Total Time: {finalResults.TotalTime} Total Score: {finalResults.TotalScore}", 0, false);
+
+                        for (int i = 0; i < finalResults.LevelResults.Length; ++i)
+                        {
+                            DrawOnLine($"Level {i + 1}) Total Time: {finalResults.LevelResults[i].Time}", i + 1);
+                            DrawOnLine($"Total Score: {finalResults.LevelResults[i].Score}", i + 1, false);
+                        }
+                    }
+
                     break;
             }
         }
@@ -346,12 +360,14 @@ namespace PASS4
             };
         }
 
-        public void ShowResultsAllLevelsComplete()
+        public void ShowResultsAllLevelsComplete(FinalResult finalResults)
         {
             inputMessage = "You've finised all the levels! : press ENTER to add name and save.";
             stage = Stage.Results;
             waitingForEnter = true;
-            ActionOnEnter = () => PlayerReadyToExistMainGame.Invoke();
+            ActionOnEnter = () => PlayerReadyToExistMainGame.Invoke(finalResults.TotalScore);
+
+            this.finalResults = finalResults;
         }
 
         public void ShowNextCommand()
