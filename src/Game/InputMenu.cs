@@ -328,18 +328,18 @@ namespace PASS4
 
                     if(finalResults != null)
                     {
-                        DrawOnLine($"Total Time: {finalResults.TotalTime} Total Score: {finalResults.TotalScore}", 0, false);
+                        DrawOnLine($"Total Time: {finalResults.TotalTime} seconds, Total Score: {finalResults.TotalScore}", 0, false);
 
                         for (int i = 0; i < finalResults.LevelResults.Length; ++i)
                         {
-                            DrawOnLine($"Level {i + 1}) Total Time: {finalResults.LevelResults[i].Time}", i + 1);
+                            DrawOnLine($"Level {i + 1}) Total Time: {finalResults.LevelResults[i].Time} seconds", i + 1);
                             DrawOnLine($"Total Score: {finalResults.LevelResults[i].Score}", i + 1, false);
                         }
                     }
-                    else
+                    else if(levelResults != null)
                     {
-                        DrawOnLine($"Total Time: {levelResults.Time}",2);
-                        DrawOnLine($"Total Score: {levelResults.Score}", 2, false);
+                        DrawOnLine($"Total Time: {levelResults.Time} seconds",1);
+                        DrawOnLine($"Total Score: {levelResults.Score}", 1, false);
 
                     }
 

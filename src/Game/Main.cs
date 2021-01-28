@@ -18,7 +18,7 @@ namespace PASS4
             HighScores
         }
 
-        private Stage stage = Stage.Game;
+        private Stage stage = Stage.Menu;
 
         public const int WIDTH = 900;
         public const int HEIGHT = 555;
@@ -66,6 +66,9 @@ namespace PASS4
             MainMenu.highScoresButtonPressed += () => stage = Stage.HighScores;
             MainMenu.exitButtonPressed += () => Exit();
             MainMenu.LoadContent();
+
+            HighScores.BackToMenu += () => stage = Stage.Menu;
+            HighScores.LoadContent();
          }
 
         protected override void Update(GameTime gameTime)
@@ -93,6 +96,7 @@ namespace PASS4
                     break;
 
                 case Stage.HighScores:
+                    HighScores.Update();
                     break;
             }
 
@@ -124,6 +128,7 @@ namespace PASS4
                     break;
 
                 case Stage.HighScores:
+                    HighScores.Draw();
                     break;
             }
 

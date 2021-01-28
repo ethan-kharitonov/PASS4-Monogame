@@ -40,7 +40,7 @@ namespace PASS4
         public void Update(float amount)
         {
             //Calculates the pecentage of the bar that is full 
-            this.amount = (Helper.Clamp(0, amount, FullAmount) / FullAmount) * (box.Width - 2 * margins.X);
+            this.amount = (Helper.Clamp(0, amount + 1, FullAmount) / FullAmount) * (box.Width - 2 * margins.X);
             this.amount += 2;
         }
 

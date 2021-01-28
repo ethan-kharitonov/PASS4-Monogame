@@ -355,5 +355,65 @@ namespace PASS4
         public static float Clamp(float min, float value, float max)
             => Math.Max(Math.Min(min, max), Math.Min(value, Math.Max(min, max)));
 
+        public static string[] MergeSort(string[] items, Func<string, string> Filter) => Divide(items, 0, items.Length - 1, Filter);
+
+        private static string[] Divide(string[] items, int left, int right, Func<string, string> Filter)
+        {
+            if (left < right)
+            {
+                int mid = (left + right) / 2;
+                return Sort(Divide(items, left, mid, Filter), Divide(items, mid + 1, right, Filter), Filter);
+            }
+            return new[] { items[left] };
+        }
+
+        private static int CompareTwoStrigns(string item1, string item2)
+        {
+            try
+            {
+                int num1 = Convert.ToInt32(item1);
+                int num2 = Convert.ToInt32(item2);
+
+                return num1 < num2 ? -1 : 1;
+            }
+            catch (Exception)
+            {
+                return item1.CompareTo(item2);
+            }
+        }
+        private static string[] Sort(string[] items1, string[] items2, Func<string, string> Filter)
+        {
+            int index1 = 0;
+            int index2 = 0;
+
+            string[] sortedNumbers = new string[items1.Length + items2.Length];
+
+            for (int i = 0; i < sortedNumbers.Length; ++i)
+            {
+                if (index2 >= items2.Length)
+                {
+                    sortedNumbers[i] = items1[index1];
+                    ++index1;
+                }
+                else if (index1 >= items1.Length)
+                {
+                    sortedNumbers[i] = items2[index2];
+                    ++index2;
+                }
+                else if (CompareTwoStrigns(Filter(items1[index1]), Filter(items2[index2])) == -1)
+                {
+                    sortedNumbers[i] = items1[index1];
+                    ++index1;
+                }
+                else
+                {
+                    sortedNumbers[i] = items2[index2];
+                    ++index2;
+                }
+            }
+
+            return sortedNumbers;
+        }
+        
     }
 }

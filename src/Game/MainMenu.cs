@@ -27,7 +27,8 @@ namespace PASS4
         public static event Action highScoresButtonPressed;
         public static event Action exitButtonPressed;
 
-
+        private static SpriteFont font;
+        private static string title = "PATHFINDER";
         public static void LoadContent()
         {
             bgImg = Helper.LoadImage("Images/MenuBackground");
@@ -37,6 +38,8 @@ namespace PASS4
             instructionsButton = new Button(new Rectangle(Main.WIDTH / 2 - BUTTON_WIDTH / 2, STARTING_BITTON_HEIGHT + (BUTTON_HEIGHT + SPACE_BETWEEN_BUTTONS), BUTTON_WIDTH, BUTTON_HEIGHT), instructionsButtonPressed, "VIEW INSTRUCTIONS");
             highScoresButton = new Button(new Rectangle(Main.WIDTH / 2 - BUTTON_WIDTH / 2, STARTING_BITTON_HEIGHT + (BUTTON_HEIGHT + SPACE_BETWEEN_BUTTONS) * 2, BUTTON_WIDTH, BUTTON_HEIGHT), highScoresButtonPressed, "VEIW HIGHSCORES");
             exitButton = new Button(new Rectangle(Main.WIDTH / 2 - 100, STARTING_BITTON_HEIGHT + (BUTTON_HEIGHT + SPACE_BETWEEN_BUTTONS) * 3, 200, 66), exitButtonPressed, "EXIT");
+
+            font = Helper.Content.Load<SpriteFont>("Fonts/TitleFont");
         }
 
         public static void Update()
@@ -50,6 +53,8 @@ namespace PASS4
         public static void Draw()
         {
             Helper.SpriteBatch.Draw(bgImg, bgBox, Color.White);
+
+            Helper.SpriteBatch.DrawString(font, title, new Vector2(Main.WIDTH / 2 - font.MeasureString(title).X / 2, 35), Color.White);
 
             playButton.Draw();
             instructionsButton.Draw();

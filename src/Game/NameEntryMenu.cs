@@ -69,7 +69,7 @@ namespace PASS4
         {
             InputComplete.Invoke();
             StreamWriter outFile = File.AppendText(SCORE_FILE_PATH);
-            outFile.WriteLine($"{name} : {score}");
+            outFile.WriteLine($"{name},{score}");
             outFile.Close();
         }
 
