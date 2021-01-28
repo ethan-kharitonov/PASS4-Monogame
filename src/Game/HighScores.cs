@@ -68,7 +68,7 @@ namespace PASS4
             searchResult = string.Empty;
 
             //Gets the lines of the scores from file
-            string[] stats = File.ReadAllLines("../../../NamesAndScores.txt");
+            string[] stats = File.ReadAllLines("NamesAndScores.txt");
 
             //sorts the file and saves it
             statsByName = Helper.MergeSort(stats, s => s.Split(',')[0]);

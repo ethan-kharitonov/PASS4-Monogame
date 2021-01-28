@@ -27,9 +27,6 @@ namespace PASS4
         //The most commonly used font (for input)
         public static SpriteFont InputFont;
 
-        private static Texture2D rect;
-        private static Color[] data;
-
         //Variables used for ray box collision (global so they dont get erased and recreated every frame)
         private static RayCollisionInfo[] results = new RayCollisionInfo[4];
         private static (Vector2 intersection, bool isIntersecting) lineLineCollisionResult;
@@ -148,9 +145,11 @@ namespace PASS4
                     return (line.Start, true);
                 }
 
+                //check if the vertical line intersects the regulat line
                 bool vStartOnLine = IsPointOnLine(verticalLine.Start, verticalLine);
                 bool vEndOnLine = IsPointOnLine(verticalLine.End, verticalLine);
 
+                //resturn the point closer to the start of the line if either intersect
                 if (vStartOnLine && vEndOnLine)
                 {
                     return (Math.Abs(verticalLine.Start.Y - line.Start.Y) < Math.Abs(verticalLine.End.Y - line.Start.Y) ? verticalLine.Start : verticalLine.End, true);
@@ -166,6 +165,7 @@ namespace PASS4
                     return (verticalLine.End, true);
                 }
 
+                //return no intersection
                 return (Vector2.Zero, false);
             }
 
@@ -355,63 +355,109 @@ namespace PASS4
         public static float Clamp(float min, float value, float max)
             => Math.Max(Math.Min(min, max), Math.Min(value, Math.Max(min, max)));
 
+
+        /// <summary>
+        /// Merge Sort algorith to sort an array of strings alphabeticall (or cast to numbers if possible)
+        /// </summary>
+        /// <param name="items">the strings to sort</param>
+        /// <param name="Filter">A function to apply to each string before comparing</param>
+        /// <returns>A sorted array of the items</returns>
         public static string[] MergeSort(string[] items, Func<string, string> Filter)
         {
+            //dont sort if the array is empty
             if(items.Length == 0)
             {
                 return items;
             }
+
+            //start division process
             return Divide(items, 0, items.Length - 1, Filter);
         }
 
+        /// <summary>
+        /// Divide the array untill reach pairs. Then merge and sort them
+        /// </summary>
+        /// <param name="items">the items to devide</param>
+        /// <param name="left">the left index of the original array that should be divided</param>
+        /// <param name="right">the right index of the original array that should be divided</param>
+        /// <param name="Filter">A function to apply to each string before comparing</param>
+        /// <returns>A sorted array of the items it recived</returns>
         private static string[] Divide(string[] items, int left, int right, Func<string, string> Filter)
         {
+            //if there are more then two items devide them
             if (left < right)
             {
+                //calculate the mid point and divide the arrays on both sides
                 int mid = (left + right) / 2;
                 return Sort(Divide(items, left, mid, Filter), Divide(items, mid + 1, right, Filter), Filter);
             }
+
+            //if there is just on item, return it
             return new[] { items[left] };
         }
 
+        /// <summary>
+        /// Compares two strings alphabetically or numerically if can be converted to int
+        /// </summary>
+        /// <param name="item1">the first string</param>
+        /// <param name="item2">the second string</param>
+        /// <returns>-1 if first bigger than second, 1 otherwise</returns>
         private static int CompareTwoStrigns(string item1, string item2)
         {
             try
             {
+                //convert them to numbers and compare regularly
                 int num1 = Convert.ToInt32(item1);
                 int num2 = Convert.ToInt32(item2);
 
                 return num1 < num2 ? -1 : 1;
             }
+            //if cannot be converted
             catch (Exception)
             {
+                //compare as strings
                 return item1.CompareTo(item2);
             }
         }
+
+        /// <summary>
+        /// Merges two sorted arrays
+        /// </summary>
+        /// <param name="items1">the first arrat</param>
+        /// <param name="items2">the seconds array</param>
+        /// <param name="Filter">A function to apply to each string before comparing</param>
+        /// <returns>A sorted array containing the elements of both arrays</returns>
         private static string[] Sort(string[] items1, string[] items2, Func<string, string> Filter)
         {
+            //stors the next index in each array for the item that should be added to the merged array
             int index1 = 0;
             int index2 = 0;
 
+            //the sorted array with all the items
             string[] sortedNumbers = new string[items1.Length + items2.Length];
 
+            //loops over all the items
             for (int i = 0; i < sortedNumbers.Length; ++i)
             {
+                //if ran out of items in second arrray add from first
                 if (index2 >= items2.Length)
                 {
                     sortedNumbers[i] = items1[index1];
                     ++index1;
                 }
+                //if ran out of items in first arrray add from second
                 else if (index1 >= items1.Length)
                 {
                     sortedNumbers[i] = items2[index2];
                     ++index2;
                 }
+                //if the item from first is smaller then the one from second add it
                 else if (CompareTwoStrigns(Filter(items1[index1]), Filter(items2[index2])) == -1)
                 {
                     sortedNumbers[i] = items1[index1];
                     ++index1;
                 }
+                //if the item from second is smaller or equal then the one from first add it
                 else
                 {
                     sortedNumbers[i] = items2[index2];
@@ -419,6 +465,7 @@ namespace PASS4
                 }
             }
 
+            //return the sorted array
             return sortedNumbers;
         }
         

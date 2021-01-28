@@ -35,7 +35,7 @@ namespace PASS4
         private static int score;
 
         //the file path to the score file
-        private const string SCORE_FILE_PATH = "../../../NamesAndScores.txt";
+        private const string SCORE_FILE_PATH = "NamesAndScores.txt";
 
         /// <summary>
         /// Loads all the content for the name entry menu

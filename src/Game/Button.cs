@@ -14,8 +14,8 @@ namespace PASS4
     class Button
     {
         //Stores the clicked and unclicked button images
-        private static readonly Texture2D button = Helper.LoadImage("Images/Button/Button BG shadow");
-        private static readonly Texture2D buttonPressed = Helper.LoadImage("Images/Button/Button BG");
+        private static readonly Texture2D button = Helper.LoadImage("Images/Button BG shadow");
+        private static readonly Texture2D buttonPressed = Helper.LoadImage("Images/Button BG");
 
         //Stores the text  writen on the button and the font it is writen in
         private static readonly SpriteFont buttonFont = Helper.Content.Load<SpriteFont>("Fonts/ButtonFont");

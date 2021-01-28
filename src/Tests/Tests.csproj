@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
 
     <OutputType>Library</OutputType>
+    <LangVersion>7</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

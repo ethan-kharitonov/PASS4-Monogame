@@ -43,6 +43,7 @@ namespace PASS4
 
         protected override void Initialize()
         {
+            //sets the dimentions of the screen
             graphics.PreferredBackBufferWidth = WIDTH;
             graphics.PreferredBackBufferHeight = HEIGHT;
             graphics.ApplyChanges();
