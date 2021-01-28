@@ -173,6 +173,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/flagImg.png
 
+#begin Images/instructions.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/instructions.png
+
 #begin Images/Key_01.png
 /importer:TextureImporter
 /processor:TextureProcessor

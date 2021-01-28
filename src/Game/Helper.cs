@@ -355,7 +355,14 @@ namespace PASS4
         public static float Clamp(float min, float value, float max)
             => Math.Max(Math.Min(min, max), Math.Min(value, Math.Max(min, max)));
 
-        public static string[] MergeSort(string[] items, Func<string, string> Filter) => Divide(items, 0, items.Length - 1, Filter);
+        public static string[] MergeSort(string[] items, Func<string, string> Filter)
+        {
+            if(items.Length == 0)
+            {
+                return items;
+            }
+            return Divide(items, 0, items.Length - 1, Filter);
+        }
 
         private static string[] Divide(string[] items, int left, int right, Func<string, string> Filter)
         {

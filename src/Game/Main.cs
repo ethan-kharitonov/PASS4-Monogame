@@ -1,4 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿//Author name: Ethan Kharitonov
+//Project name: PASS4
+//File name: MainMenu.cs
+//Date Created: January 17th, 2021
+//Date Modified: January 27th, 2021
+//Description: Handles everything about the main menu
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,6 +15,7 @@ namespace PASS4
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
+        //indicates the stage of the game
         enum Stage
         {
             Instructions,
@@ -18,8 +25,11 @@ namespace PASS4
             HighScores
         }
 
+        //indicates the stage of the game
         private Stage stage = Stage.Menu;
 
+
+        //dimensions of the screen
         public const int WIDTH = 900;
         public const int HEIGHT = 555;
 
@@ -40,17 +50,21 @@ namespace PASS4
             base.Initialize();
         }
 
+        /// <summary>
+        /// loads all the content of the game
+        /// </summary>
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Screen.spriteBatch = spriteBatch;
 
+            //assigne helper variables
             Helper.Content = Content;
             Helper.graphics = graphics;
             Helper.SpriteBatch = spriteBatch;
             Helper.InputFont = Content.Load<SpriteFont>("Fonts/InputFont");
 
-
+            //load the game
             Game.LoadContent();
             Game.AllLevelsComplete += score =>
             {
@@ -58,9 +72,11 @@ namespace PASS4
                 NameEntryMenu.Start(score);
             };
 
+            //load the name entry menu
             NameEntryMenu.LoadContent();
             NameEntryMenu.InputComplete += () => stage = Stage.Menu;
 
+            //load the main menu and sign up to events
             MainMenu.playButtonPressed += () =>
             {
                 stage = Stage.Game;
@@ -71,8 +87,16 @@ namespace PASS4
             MainMenu.exitButtonPressed += () => Exit();
             MainMenu.LoadContent();
 
+            //load high scores
             HighScores.BackToMenu += () => stage = Stage.Menu;
             HighScores.LoadContent();
+
+            //load high scores
+            Instructions.BackToMenu += () => stage = Stage.Menu;
+            Instructions.LoadContent();
+
+            //sign up to games back to menu event
+            Game.BackToMenu += () => stage = Stage.Menu;
         }
 
         protected override void Update(GameTime gameTime)
@@ -82,9 +106,11 @@ namespace PASS4
 
             Helper.UpdateKeyBoard();
 
+            //update the correct stage
             switch (stage)
             {
                 case Stage.Instructions:
+                    Instructions.Update();
                     break;
 
                 case Stage.Menu:
@@ -114,9 +140,11 @@ namespace PASS4
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
 
+            //draw the correct stage
             switch (stage)
             {
                 case Stage.Instructions:
+                    Instructions.Draw();
                     break;
 
                 case Stage.Menu:
@@ -139,6 +167,7 @@ namespace PASS4
             spriteBatch.End();
             base.Draw(gameTime);
         }
+
 
     }
 }

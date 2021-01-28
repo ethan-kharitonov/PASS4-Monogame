@@ -1,4 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿//Author name: Ethan Kharitonov
+//Project name: PASS4
+//File name: LevelContainer.cs
+//Date Created: January 17th, 2021
+//Date Modified: January 27th, 2021
+//Description: Handles everything about the game component of the program
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
