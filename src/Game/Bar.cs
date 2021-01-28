@@ -41,6 +41,8 @@ namespace PASS4
         {
             //Calculates the pecentage of the bar that is full 
             this.amount = (Helper.Clamp(0, amount + 1, FullAmount) / FullAmount) * (box.Width - 2 * margins.X);
+
+            //Extends the inside bar two more pixels
             this.amount += 2;
         }
 

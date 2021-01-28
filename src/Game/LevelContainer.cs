@@ -94,6 +94,18 @@ namespace PASS4
             LoadLevelFromFile($"{LEVEL_PATH_SUFFIX}{curLevel}.txt");
             timer.Start();
         }
+
+        public void Reset()
+        {
+            GamePaused = true;
+            numCommands = 0;
+            timer.Start();
+            numKeys = 0;
+            numGems = 0;
+            curLevel = 1;
+            ReStartLevel();
+            commands.Clear();
+        }
         public void LoadCommands(Queue<char> commands)
         {
             GamePaused = false;
@@ -138,7 +150,7 @@ namespace PASS4
                             }
                             else
                             {
-                                RunCompleteSuccess.Invoke(finalResult.LevelResults[curLevel - 1]);/*"Success! You've reached the goal : Press ENTER to continue to the next level.");*/
+                                RunCompleteSuccess.Invoke(finalResult.LevelResults[curLevel - 1]);
 
                                 ++curLevel;
                                 startingNewLevel = true;

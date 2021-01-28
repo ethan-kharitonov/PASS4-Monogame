@@ -37,6 +37,13 @@ namespace PASS4
             InputMenu.Instance
         };
 
+
+        public static void Reset()
+        {
+            LevelContainer.Instance.Reset();
+            InputMenu.Instance.Reset();
+        }
+
         public static void LoadContent()
         {
             LevelContainer.Instance.RunCompleteFailed += m => InputMenu.Instance.ShowResultsForRoundFailed(m);

@@ -49,10 +49,10 @@ namespace PASS4
             Helper.graphics = graphics;
             Helper.SpriteBatch = spriteBatch;
             Helper.InputFont = Content.Load<SpriteFont>("Fonts/InputFont");
-           
+
 
             Game.LoadContent();
-            Game.AllLevelsComplete += score => 
+            Game.AllLevelsComplete += score =>
             {
                 stage = Stage.NameEntry;
                 NameEntryMenu.Start(score);
@@ -61,7 +61,11 @@ namespace PASS4
             NameEntryMenu.LoadContent();
             NameEntryMenu.InputComplete += () => stage = Stage.Menu;
 
-            MainMenu.playButtonPressed += () => stage = Stage.Game;
+            MainMenu.playButtonPressed += () =>
+            {
+                stage = Stage.Game;
+                Game.Reset();
+            };
             MainMenu.instructionsButtonPressed += () => stage = Stage.Instructions;
             MainMenu.highScoresButtonPressed += () => stage = Stage.HighScores;
             MainMenu.exitButtonPressed += () => Exit();
@@ -69,7 +73,7 @@ namespace PASS4
 
             HighScores.BackToMenu += () => stage = Stage.Menu;
             HighScores.LoadContent();
-         }
+        }
 
         protected override void Update(GameTime gameTime)
         {

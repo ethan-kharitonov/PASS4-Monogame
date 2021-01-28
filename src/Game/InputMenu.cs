@@ -86,8 +86,6 @@ namespace PASS4
 
         private Texture2D bgImg;
 
-        private bool OnEnterGoToMenu = false;
-
         private Stage stage = Stage.Input;
         public static readonly InputMenu Instance = new InputMenu();
 
@@ -118,7 +116,7 @@ namespace PASS4
         private const int MAX_COMMANDS = 68;
 
         private Point margins = new Point(10, 10);
-        private int lineSpacing = 5;
+        private const int LINE_SPACING = 5;
 
         private char[] validChars = new[]
         {
@@ -147,6 +145,22 @@ namespace PASS4
 
         private InputMenu()
         {
+        }
+
+        public void Reset()
+        {
+            stage = Stage.Input;
+            numCommands = 0;
+            showLegend = false;
+            progressBar.Update(0);
+            curCommandNumber = 0;
+            commandOrder.Clear();
+            commandArrow = string.Empty;
+            inputMessage = string.Empty;
+            input = string.Empty;
+            CommandReadingStarting.Invoke();
+            finalResults = null;
+            levelResults = null;
         }
 
         private Screen screen = new Screen(new Point(0, LevelContainer.HEIGHT), LevelContainer.WIDTH, HEIGHT);
@@ -205,6 +219,7 @@ namespace PASS4
                             commandOrder.Enqueue(input.Length - 1);
 
                             progressBar.FullAmount = commandOrder.Count;
+                            progressBar.Update(0);
                             showLegend = false;
                             stage = Stage.Waiting;
                         }
@@ -321,6 +336,10 @@ namespace PASS4
                     DrawOnLine("Action       : ", 1);
                     DrawOnLine(commandArrow, 1, (int)commandArrowXPosition);
                     DrawOnLine($"{numCommands}/{MAX_COMMANDS} Commands", 0, false);
+                    DrawOnLine(numGemsDisplay, 2);
+                    DrawOnLine(numKeysDisplay, 2, false);
+
+
                     progressBar.Draw(screen);
                     break;
                 case Stage.Results:
@@ -403,9 +422,9 @@ namespace PASS4
         }
 
         private void DrawOnLine(string text, int lineNum, bool leftToRight = true)
-            => screen.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : LevelContainer.WIDTH - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
+            => screen.DrawText(Helper.InputFont, text, new Vector2(leftToRight ? margins.X : LevelContainer.WIDTH - margins.X - Helper.InputFont.MeasureString(text).X, (Helper.InputFont.MeasureString("S").Y + LINE_SPACING) * lineNum + margins.Y), Color.White);
 
         private void DrawOnLine(string text, int lineNum, int xPosition)
-            => screen.DrawText(Helper.InputFont, text, new Vector2(xPosition, (Helper.InputFont.MeasureString("S").Y + lineSpacing) * lineNum + margins.Y), Color.White);
+            => screen.DrawText(Helper.InputFont, text, new Vector2(xPosition, (Helper.InputFont.MeasureString("S").Y + LINE_SPACING) * lineNum + margins.Y), Color.White);
     }
 }
